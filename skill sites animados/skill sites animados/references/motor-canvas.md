@@ -32,13 +32,23 @@ function progresso() {
 
 A LUT de remap é construída uma vez:
 
-1. Centros de pausa: `STOPS = [0.06, 0.20, 0.38, 0.55, 0.75, 0.93]`.
-2. Para cada posição `x` em 0..1, densidade = `1 + PEAK * Σ exp(-((x-c)/WIDTH)²)`.
-3. Integrar a densidade e normalizar para 0..1.
-4. Inverter a integral → `remap(x)` (posição de scroll → progresso efetivo).
+1. Centros de pausa `STOPS` em **progresso efetivo** (fração do índice de
+   quadro, 0..1).
+2. Para cada posição `y` em 0..1, densidade = `1 + PEAK * Σ exp(-((y-c)/WIDTH)²)`.
+3. Integrar a densidade e normalizar para 0..1 → `F(y)` (posição de scroll
+   acumulada até o progresso `y`).
+4. `remap(x) = F⁻¹(x)` — **inverter** a integral (busca binária na tabela
+   monotônica). `remap` leva posição de scroll → progresso efetivo.
+
+> ⚠️ Retornar `F(x)` direto **acelera** o vídeo nos stops (o contrário de
+> pausar). A inversa é obrigatória.
 
 Parâmetros da Conecta-Rua: `PEAK = 2.6`, `WIDTH = 0.04`, `N = 2000`.
 Mais PEAK = pausa mais dramática; mais WIDTH = pausa mais longa.
+
+**Stops em progresso efetivo** (amostragem não uniforme de 157 quadros):
+`0.0385 · 0.1154 · 0.1923 · 0.4615 · 0.8077 · 0.9615`.
+Com amostragem uniforme, os stops coincidem com a fração de tempo do vídeo.
 
 ## 3. Frame e suavização
 
@@ -51,6 +61,8 @@ desenhar(Math.round(atual));
 - `LERP` baixo = animação mais suave/atrasada; alto = mais responsiva.
 - Fallback de quadro faltante: desenhar o vizinho mais próximo já carregado.
 - Nunca desenhar índice fora de `[0, TOTAL-1]`.
+- A visibilidade das paradas usa o **progresso efetivo** (`remap(p)`), não o
+  progresso bruto — assim o texto fica ativo exatamente durante a pausa.
 
 ## 4. Desenho com cobertura (cover)
 

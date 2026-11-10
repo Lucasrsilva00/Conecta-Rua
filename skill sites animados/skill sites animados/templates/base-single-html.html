@@ -210,11 +210,11 @@
       extensao: '.webp',
       digitos: 4,
       lerp: {{LERP}},
-      stops: [0.06, 0.20, 0.38, 0.55, 0.75, 0.93],
+      stops: {{STOPS}},          // centros de pausa em progresso efetivo (array JS)
       peak: {{DWELL_PEAK}},
       width: {{DWELL_WIDTH}},
       remapN: 2000,
-      inicioAnimado: {{FRAME_INICIO}} // 0 no caso geral; 24 na Conecta-Rua
+      inicioAnimado: {{FRAME_INICIO}} // quadro inicial (poster); 0 = frame 0
     };
 
     const reduzirMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -244,10 +244,10 @@
       const n = CONFIG.remapN;
       const densidade = new Float32Array(n + 1);
       for (let i = 0; i <= n; i++) {
-        const x = i / n;
+        const y = i / n;
         let d = 1;
         for (const c of CONFIG.stops) {
-          const z = (x - c) / CONFIG.width;
+          const z = (y - c) / CONFIG.width;
           d += CONFIG.peak * Math.exp(-z * z);
         }
         densidade[i] = d;
@@ -259,13 +259,23 @@
       const total = integral[n];
       for (let i = 0; i <= n; i++) integral[i] /= total;
 
+      // remap(x) = F⁻¹(x): posição de scroll -> progresso efetivo.
+      // A integral normalizada F(y) é a posição de scroll acumulada até o
+      // progresso y. Invertê-la é o que cria a pausa nos stops (sem inverter,
+      // o vídeo acelera justo onde o texto aparece).
       return (x) => {
         x = Math.max(0, Math.min(1, x));
-        const pos = x * n;
-        const i = Math.floor(pos);
-        if (i >= n) return 1;
-        const t = pos - i;
-        return integral[i] * (1 - t) + integral[i + 1] * t;
+        let lo = 0, hi = n;
+        while (lo < hi) {
+          const meio = (lo + hi) >> 1;
+          if (integral[meio] < x) lo = meio + 1;
+          else hi = meio;
+        }
+        if (lo === 0) return 0;
+        const y0 = integral[lo - 1];
+        const y1 = integral[lo];
+        const t = y1 > y0 ? (x - y0) / (y1 - y0) : 0;
+        return (lo - 1 + t) / n;
       };
     }
 
@@ -345,11 +355,11 @@
       return Math.max(0, Math.min(1, -r.top / alcance));
     }
 
-    function atualizarParadas(p) {
+    function atualizarParadas(progressoEfetivo) {
       for (const parada of paradas) {
         const inicio = parseFloat(parada.dataset.showAt);
         const fim = parseFloat(parada.dataset.hideAt);
-        parada.classList.toggle('ativa', p >= inicio && p < fim);
+        parada.classList.toggle('ativa', progressoEfetivo >= inicio && progressoEfetivo < fim);
       }
     }
 
@@ -361,7 +371,7 @@
       const alvo = Math.round(CONFIG.inicioAnimado + efetivo * faixa);
       atual += (alvo - atual) * CONFIG.lerp;
       desenhar(Math.round(atual));
-      atualizarParadas(p);
+      atualizarParadas(efetivo);
       requestAnimationFrame(animar);
     }
 
