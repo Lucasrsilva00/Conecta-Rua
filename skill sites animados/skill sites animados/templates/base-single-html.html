@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITULO}}</title>
+  <meta name="description" content="{{DESCRICAO}}">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{{TITULO}}">
+  <meta property="og:description" content="{{DESCRICAO}}">
+  <meta property="og:image" content="{{OG_IMAGE}}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Fontes da marca (auto-hospedadas ou Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="{{FONTE_URL}}" rel="stylesheet">
+
+  <style>
+    /* {{TOKENS}} — cole aqui o conteúdo de templates/tokens-brand.css.twig já preenchido */
+
+    .scroll-video {
+      position: relative;
+      height: var(--altura-scroll, 590vh);
+    }
+
+    .palco {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    #quadro {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scrim-lateral,
+    .scrim-inferior,
+    .vinheta,
+    .tint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .scrim-lateral  { background: var(--scrim-lateral); }
+    .scrim-inferior { background: var(--scrim-inferior); }
+    .vinheta        { background: var(--vinheta); }
+    .tint           { background: var(--accent); opacity: 0.06; mix-blend-mode: screen; }
+
+    .paradas {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .parada {
+      position: absolute;
+      left: 6%;
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: 520px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 160ms ease-out, transform 160ms ease-out;
+      pointer-events: none;
+    }
+
+    .parada.ativa {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .parada h2 {
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      text-transform: uppercase;
+    }
+
+    .parada p {
+      font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+      color: var(--text-dim);
+      max-width: 46ch;
+    }
+
+    .rotulo {
+      display: inline-block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-content: center;
+      gap: 16px;
+      background: var(--bg);
+      transition: opacity 400ms ease, visibility 400ms ease;
+    }
+
+    .loader.pronto {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader__barra {
+      width: 180px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .loader__progresso {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 200ms linear;
+    }
+
+    .loader__texto {
+      font-family: var(--body);
+      font-size: 0.875rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-video { height: auto; }
+      .palco { position: relative; height: auto; }
+      #quadro { position: relative; height: 60vh; }
+      .parada {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        max-width: 720px;
+        margin: 48px auto;
+        padding: 0 24px;
+      }
+      .paradas { position: relative; inset: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fallback sem JavaScript -->
+  <noscript>
+    <style>
+      .loader, .scroll-video { display: none; }
+    </style>
+    <section class="conteudo-estatico" style="max-width: 720px; margin: 0 auto; padding: 48px 24px;">
+      <h1>{{TITULO}}</h1>
+      <p>{{DESCRICAO}}</p>
+      <p><a href="#contato">Quero doar</a></p>
+      <!-- {{SECOES_NOSCRIPT}} — seções em texto puro -->
+    </section>
+  </noscript>
+
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <p class="loader__texto">{{MARCA}}</p>
+    <div class="loader__barra"><div class="loader__progresso" id="progresso"></div></div>
+    <p class="loader__texto" id="porcentagem">0%</p>
+  </div>
+
+  <section class="scroll-video" id="scroll-video">
+    <div class="palco">
+      <canvas id="quadro" aria-hidden="true"></canvas>
+      <div class="scrim-lateral"></div>
+      <div class="scrim-inferior"></div>
+      <div class="vinheta"></div>
+      <div class="tint"></div>
+
+      <div class="paradas">
+        <!-- {{SECOES}} — uma article.parada por parada, com data-show-at / data-hide-at -->
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // =====================================================================
+    // MOTOR — ver references/motor-canvas.md
+    // =====================================================================
+
+    const CONFIG = {
+      total: {{TOTAL_QUADROS}},
+      pastaDesktop: 'quadros/desktop/',
+      pastaMobile: 'quadros/mobile/',
+      prefixo: 'frame-',
+      extensao: '.webp',
+      digitos: 4,
+      lerp: {{LERP}},
+      stops: [0.06, 0.20, 0.38, 0.55, 0.75, 0.93],
+      peak: {{DWELL_PEAK}},
+      width: {{DWELL_WIDTH}},
+      remapN: 2000,
+      inicioAnimado: {{FRAME_INICIO}} // 0 no caso geral; 24 na Conecta-Rua
+    };
+
+    const reduzirMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const conexao = navigator.connection || {};
+    const economia = conexao.saveData === true ||
+      /(^|-)2g$/.test(conexao.effectiveType || '');
+    const usarMobile = innerWidth < 768 || economia;
+
+    const secao = document.getElementById('scroll-video');
+    const canvas = document.getElementById('quadro');
+    const ctx = canvas.getContext('2d');
+    const paradas = [...document.querySelectorAll('.parada')];
+    const loader = document.getElementById('loader');
+    const barra = document.getElementById('progresso');
+    const porcento = document.getElementById('porcentagem');
+
+    const pasta = usarMobile ? CONFIG.pastaMobile : CONFIG.pastaDesktop;
+    const quadros = new Array(CONFIG.total);
+    let atual = CONFIG.inicioAnimado;
+    let carregados = 0;
+
+    const nomeQuadro = (i) =>
+      pasta + CONFIG.prefixo + String(i + 1).padStart(CONFIG.digitos, '0') + CONFIG.extensao;
+
+    // ---------- LUT de pausas (dwell) ----------
+    function construirRemap() {
+      const n = CONFIG.remapN;
+      const densidade = new Float32Array(n + 1);
+      for (let i = 0; i <= n; i++) {
+        const x = i / n;
+        let d = 1;
+        for (const c of CONFIG.stops) {
+          const z = (x - c) / CONFIG.width;
+          d += CONFIG.peak * Math.exp(-z * z);
+        }
+        densidade[i] = d;
+      }
+      const integral = new Float32Array(n + 1);
+      for (let i = 1; i <= n; i++) {
+        integral[i] = integral[i - 1] + (densidade[i] + densidade[i - 1]) / 2 / n;
+      }
+      const total = integral[n];
+      for (let i = 0; i <= n; i++) integral[i] /= total;
+
+      return (x) => {
+        x = Math.max(0, Math.min(1, x));
+        const pos = x * n;
+        const i = Math.floor(pos);
+        if (i >= n) return 1;
+        const t = pos - i;
+        return integral[i] * (1 - t) + integral[i + 1] * t;
+      };
+    }
+
+    const remap = construirRemap();
+
+    // ---------- Carregamento ----------
+    function carregar(indice) {
+      if (quadros[indice]) return Promise.resolve(quadros[indice]);
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => {
+          quadros[indice] = img;
+          carregados++;
+          atualizarLoader();
+          resolve(img);
+        };
+        img.onerror = () => resolve(null);
+        img.src = nomeQuadro(indice);
+      });
+    }
+
+    function atualizarLoader() {
+      const pct = Math.round((carregados / CONFIG.total) * 100);
+      barra.style.width = pct + '%';
+      porcento.textContent = pct + '%';
+      if (carregados >= CONFIG.total) loader.classList.add('pronto');
+    }
+
+    function carregarCriticos() {
+      const passo = Math.max(1, Math.floor(CONFIG.total / 12));
+      const criticos = [];
+      for (let i = CONFIG.inicioAnimado; i < CONFIG.total; i += passo) criticos.push(i);
+      criticos.push(CONFIG.total - 1);
+      return Promise.all(criticos.map(carregar));
+    }
+
+    function carregarRestante() {
+      const agenda = window.requestIdleCallback || ((cb) => setTimeout(cb, 50));
+      let i = CONFIG.inicioAnimado;
+      const lote = () => {
+        let feitos = 0;
+        while (i < CONFIG.total && feitos < 20) {
+          if (!quadros[i]) carregar(i);
+          i++; feitos++;
+        }
+        if (i < CONFIG.total) agenda(lote);
+      };
+      agenda(lote);
+    }
+
+    // ---------- Desenho ----------
+    function ajustarCanvas() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(canvas.clientWidth * dpr);
+      canvas.height = Math.round(canvas.clientHeight * dpr);
+    }
+
+    function desenhar(indice) {
+      let img = quadros[indice];
+      if (!img) {
+        for (let d = 1; d < 30 && !img; d++) {
+          img = quadros[indice - d] || quadros[indice + d];
+        }
+      }
+      if (!img) return;
+      const escala = Math.max(canvas.width / img.width, canvas.height / img.height);
+      const w = img.width * escala;
+      const h = img.height * escala;
+      ctx.drawImage(img, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+    }
+
+    function progressoScroll() {
+      const r = secao.getBoundingClientRect();
+      const alcance = r.height - innerHeight;
+      if (alcance <= 0) return 0;
+      return Math.max(0, Math.min(1, -r.top / alcance));
+    }
+
+    function atualizarParadas(p) {
+      for (const parada of paradas) {
+        const inicio = parseFloat(parada.dataset.showAt);
+        const fim = parseFloat(parada.dataset.hideAt);
+        parada.classList.toggle('ativa', p >= inicio && p < fim);
+      }
+    }
+
+    // ---------- Loop ----------
+    function animar() {
+      const p = progressoScroll();
+      const efetivo = remap(p);
+      const faixa = CONFIG.total - 1 - CONFIG.inicioAnimado;
+      const alvo = Math.round(CONFIG.inicioAnimado + efetivo * faixa);
+      atual += (alvo - atual) * CONFIG.lerp;
+      desenhar(Math.round(atual));
+      atualizarParadas(p);
+      requestAnimationFrame(animar);
+    }
+
+    // ---------- Init ----------
+    async function iniciar() {
+      ajustarCanvas();
+
+      if (reduzirMovimento) {
+        await carregar(CONFIG.inicioAnimado);
+        desenhar(CONFIG.inicioAnimado);
+        loader.classList.add('pronto');
+        return;
+      }
+
+      await carregar(CONFIG.inicioAnimado);
+      desenhar(CONFIG.inicioAnimado);
+      await carregarCriticos();
+      loader.classList.add('pronto');
+      carregarRestante();
+      animar();
+    }
+
+    addEventListener('resize', () => {
+      ajustarCanvas();
+      desenhar(Math.round(atual));
+    }, { passive: true });
+
+    iniciar();
+  </script>
+</body>
+</html>

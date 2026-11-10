@@ -1,0 +1,23 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+.vite/
+
+# Ferramentas locais (FFmpeg portátil, zips)
+tools/
+*.zip
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+__MACOSX/
+
+# Logs e temporários
+*.log
+.env
+.env.local

@@ -1,0 +1,181 @@
+/* ==========================================================================
+   TOKENS DE MARCA — template da skill sites-animados v2
+   --------------------------------------------------------------------------
+   Substitua os placeholders {{...}} pelos valores extraídos no Passo 1
+   (arquivo de design da marca) ou escolhidos pelo usuário.
+
+   REGRAS:
+   1. Todo CSS do site referencia var(--token). Nenhum hex literal solto.
+   2. Contraste mínimo: 4.5:1 texto normal, 3:1 texto grande (WCAG 2.2 AA).
+      Valide com: python scripts/checar_contraste.py --texto ... --fundo ...
+   3. O preset dá o temperamento; a marca dá cor, fonte e forma.
+   ========================================================================== */
+
+:root {
+  /* --- Superfícies ------------------------------------------------------ */
+  --bg:            {{BG}};            /* fundo da página               */
+  --surface:       {{SURFACE}};       /* cards e painéis               */
+  --surface-glass: {{SURFACE_GLASS}}; /* ex.: rgba(13,18,24,0.55)      */
+  --line:          {{LINE}};          /* bordas e divisores            */
+
+  /* --- Texto ------------------------------------------------------------ */
+  --text:          {{TEXT}};          /* texto principal               */
+  --text-dim:      {{TEXT_DIM}};      /* secundário                    */
+  --muted:         {{MUTED}};         /* legendas e microcopy          */
+
+  /* --- Destaques -------------------------------------------------------- */
+  --accent:        {{ACCENT}};        /* destaque primário da marca    */
+  --accent-2:      {{ACCENT_2}};      /* destaque secundário           */
+  --accent-cta:    {{ACCENT_CTA}};    /* fundo de botão sólido         */
+  --accent-glow:   {{ACCENT_GLOW}};   /* ex.: rgba(52,217,123,0.35)    */
+
+  /* --- Tipografia ------------------------------------------------------- */
+  --heading: {{HEADING}};             /* ex.: 'Inter', system-ui       */
+  --body:    {{BODY}};                /* ex.: 'Inter', system-ui       */
+  --peso-titulo: {{PESO_TITULO}};     /* ex.: 800                      */
+  --peso-corpo:  {{PESO_CORPO}};      /* ex.: 400                      */
+
+  /* --- Forma ------------------------------------------------------------ */
+  --raio-card:    {{RAIO_CARD}};      /* ex.: 12px                     */
+  --raio-botao:   {{RAIO_BOTAO}};     /* ex.: 16px                     */
+  --altura-botao: 52px;               /* alvo de toque >= 44px         */
+  --sombra-glow:  0 0 32px var(--accent-glow);
+
+  /* --- Motor scroll-driven --------------------------------------------- */
+  --altura-scroll: {{ALTURA_SCROLL}}; /* ex.: 590vh                    */
+  --dwell-peak:    {{DWELL_PEAK}};    /* ex.: 2.6                      */
+  --dwell-width:   {{DWELL_WIDTH}};   /* ex.: 0.04                     */
+  --lerp:          {{LERP}};          /* ex.: 0.12 (mobile 0.15)       */
+
+  /* --- Scrims (contraste sobre o canvas) -------------------------------- */
+  --scrim-lateral: linear-gradient(
+    90deg,
+    {{SCRIM_COR}} 0%,
+    {{SCRIM_COR_TRANSPARENTE}} 55%
+  );
+  --scrim-inferior: linear-gradient(
+    0deg,
+    {{SCRIM_COR}} 0%,
+    {{SCRIM_COR_TRANSPARENTE}} 45%
+  );
+  --vinheta: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    {{VINHETA_COR}} 100%
+  );
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: var(--peso-corpo);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: var(--heading);
+  font-weight: var(--peso-titulo);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Foco sempre visível — nunca outline: none */
+:focus-visible {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   COMPONENTES BASE
+   ========================================================================== */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--altura-botao);
+  padding: 0 24px;
+  border-radius: var(--raio-botao);
+  font-family: var(--body);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: 0;
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.botao--primario {
+  background: var(--accent-cta);
+  color: #FFFFFF;
+}
+
+.botao--secundario {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--accent);
+}
+
+.botao:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-glow);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--raio-card);
+  padding: 24px;
+}
+
+/* ==========================================================================
+   ALTO CONTRASTE (modo solar / prefers-contrast)
+   ========================================================================== */
+
+html.contrast-solar {
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --text: #0F2B1A;
+  --text-dim: #1C3A26;
+  --line: #14532D;
+  --accent: #14532D;
+  --accent-cta: #7C2D12;
+  --sombra-glow: none;
+}
+
+html.contrast-solar .card {
+  border-width: 2px;
+}
