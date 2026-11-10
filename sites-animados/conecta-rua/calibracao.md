@@ -41,8 +41,10 @@ delogo=x=1104:y=650:w=170:h=60
 | **P5 Impacto** | 6,0–9,0 s | 144–215 | Gota de cristal → ondas/anéis verdes | "Cada quilo é uma gota que se espalha" |
 | **P6 CTA** | 9,0–10,0 s | 216–240 | Fade para preto com ponto de luz | 3 botões: doar, voluntário, ONG |
 
-Centros de pausa (dwell): `0.06 · 0.20 · 0.38 · 0.55 · 0.75 · 0.93`
-(PEAK 2.6 · WIDTH 0.04 · altura 590vh · LERP 0.12).
+Centros de pausa (dwell) recalibrados para a amostragem não uniforme, em
+**progresso efetivo**: `0.0385 · 0.1154 · 0.1923 · 0.4615 · 0.8077 · 0.9615`
+(PEAK 2.6 · WIDTH 0.04 · altura 590vh · LERP 0.12). Detalhes e mapeamento
+quadro↔tempo em `extracao.md`.
 
 ### Decisão do título (duplicação)
 

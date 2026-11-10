@@ -66,7 +66,15 @@ def ler_argumentos():
     )
     cli.add_argument(
         "--qualidade", type=int, default=80,
-        help="Qualidade WebP 1-100 (padrão: 80)"
+        help="Qualidade WebP 1-100 (padrão: 80) — usada quando as específicas não são dadas"
+    )
+    cli.add_argument(
+        "--qualidade-desktop", type=int, default=0,
+        help="Qualidade WebP só do desktop (padrão: usa --qualidade)"
+    )
+    cli.add_argument(
+        "--qualidade-mobile", type=int, default=0,
+        help="Qualidade WebP só do mobile (padrão: usa --qualidade)"
     )
     cli.add_argument(
         "--res-desktop", default="1920x1080",
@@ -87,6 +95,20 @@ def ler_argumentos():
     cli.add_argument(
         "--filtro", default="",
         help="Filtro FFmpeg extra aplicado antes do scale (ex.: delogo=x=1080:y=630:w=180:h=70)"
+    )
+    cli.add_argument(
+        "--selecao", default="",
+        help="Expressão FFmpeg select para densidade não uniforme "
+             "(ex.: not(mod(n,2))+between(n,72,143)); substitui o fps uniforme"
+    )
+    cli.add_argument(
+        "--altura-scroll", type=int, default=0,
+        help="Altura do scroll em vh (padrão: heurística pela quantidade de quadros)"
+    )
+    cli.add_argument(
+        "--stops", default="",
+        help="Centros de pausa em progresso efetivo, separados por vírgula "
+             "(ex.: 0.0385,0.1154,0.1923,0.4615,0.8077,0.9615)"
     )
     return cli.parse_args()
 
@@ -176,7 +198,12 @@ def inspecionar_video(caminho):
     largura = int(stream_video.get("width", 1920))
     altura = int(stream_video.get("height", 1080))
     codec = stream_video.get("codec_name", "desconhecido")
-    total_quadros = int(round(duracao * fps))
+
+    # Total de quadros: prefere a duração do stream (mais precisa que a do
+    # container, que costuma incluir padding e arredondar 1 quadro a mais).
+    duracao_stream = float(stream_video.get("duration", 0) or 0)
+    base_quadros = duracao_stream if duracao_stream > 0 else duracao
+    total_quadros = int(round(base_quadros * fps))
 
     return {
         "duracao": round(duracao, 2),
@@ -227,7 +254,7 @@ def tem_libwebp():
     return "libwebp" in saida.stdout
 
 
-def extrair_quadros(entrada, pasta_saida, quantidade, resolucao, qualidade, rotulo="", filtro=""):
+def extrair_quadros(entrada, pasta_saida, quantidade, resolucao, qualidade, rotulo="", filtro="", selecao=""):
     """Extrai quadros igualmente espaçados do vídeo como WebP.
 
     Estratégia:
@@ -251,6 +278,9 @@ def extrair_quadros(entrada, pasta_saida, quantidade, resolucao, qualidade, rotu
     fps_alvo = max(1, min(60, fps_alvo))
 
     cadeia = f"fps={fps_alvo:.4f}"
+    if selecao:
+        # Densidade não uniforme: o select decide quais frames entram.
+        cadeia = f"select='{selecao}'"
     if filtro:
         cadeia += f",{filtro}"
     cadeia += f",scale={largura}:{altura}:flags=lanczos"
@@ -269,6 +299,7 @@ def extrair_quadros(entrada, pasta_saida, quantidade, resolucao, qualidade, rotu
             "-quality", str(qualidade),
             "-compression_level", "6",
             "-an",
+            "-fps_mode", "vfr",
             "-frames:v", str(quantidade),
             str(pasta_saida / "frame-%04d.webp"),
         ]
@@ -280,6 +311,7 @@ def extrair_quadros(entrada, pasta_saida, quantidade, resolucao, qualidade, rotu
             "-i", str(entrada),
             "-vf", cadeia,
             "-an",
+            "-fps_mode", "vfr",
             "-frames:v", str(quantidade),
             str(pasta_saida / "frame-%04d.png"),
         ]
@@ -351,7 +383,9 @@ def extrair_quadros(entrada, pasta_saida, quantidade, resolucao, qualidade, rotu
 # ---------------------------------------------------------------------------
 
 def gerar_manifest(pasta_saida, info_video, quadros_alvo, altura_scroll,
-                   qualidade, info_desktop=None, info_mobile=None):
+                   qualidade, info_desktop=None, info_mobile=None,
+                   qualidade_desktop=None, qualidade_mobile=None,
+                   filtro="", selecao="", stops=None):
     """Escreve o manifest.json com todos os metadados."""
     manifest = {
         "origem": {
@@ -365,8 +399,13 @@ def gerar_manifest(pasta_saida, info_video, quadros_alvo, altura_scroll,
         "quadros": {
             "quantidade_alvo": quadros_alvo,
             "formato": "webp",
-            "qualidade": qualidade,
+            "qualidade": qualidade_desktop or qualidade,
             "padrao_nomes": "frame-{NNNN}.webp",
+        },
+        "extracao": {
+            "filtro": filtro or None,
+            "selecao": selecao or None,
+            "stops": stops or None,
         },
         "altura_scroll_recomendada": f"{altura_scroll}vh",
         "criado_em": datetime.now().isoformat(timespec="seconds"),
@@ -379,6 +418,7 @@ def gerar_manifest(pasta_saida, info_video, quadros_alvo, altura_scroll,
             "bytes_totais": info_desktop["bytes_totais"],
             "bytes_medios": info_desktop["bytes_medios"],
             "total_mb": round(info_desktop["bytes_totais"] / 1024 / 1024, 2),
+            "qualidade": qualidade_desktop or qualidade,
         }
 
     if info_mobile:
@@ -388,6 +428,7 @@ def gerar_manifest(pasta_saida, info_video, quadros_alvo, altura_scroll,
             "bytes_totais": info_mobile["bytes_totais"],
             "bytes_medios": info_mobile["bytes_medios"],
             "total_mb": round(info_mobile["bytes_totais"] / 1024 / 1024, 2),
+            "qualidade": qualidade_mobile or qualidade,
         }
 
     caminho_manifest = Path(pasta_saida) / "manifest.json"
@@ -459,6 +500,8 @@ def principal():
     quadros_alvo, altura_scroll = calcular_quadros_ideais(
         info_video["duracao"], args.quadros
     )
+    if args.altura_scroll > 0:
+        altura_scroll = args.altura_scroll
 
     pasta_saida = Path(args.saida)
     pasta_saida.mkdir(parents=True, exist_ok=True)
@@ -469,12 +512,16 @@ def principal():
     info_desktop = None
     info_mobile = None
 
+    qualidade_desktop = args.qualidade_desktop or args.qualidade
+    qualidade_mobile = args.qualidade_mobile or args.qualidade
+
     # Quadros desktop
     if not args.so_mobile:
         dir_desktop = pasta_saida / "desktop"
         info_desktop = extrair_quadros(
             args.entrada, dir_desktop, quadros_alvo,
-            res_desktop, args.qualidade, rotulo="desktop", filtro=args.filtro
+            res_desktop, qualidade_desktop, rotulo="desktop", filtro=args.filtro,
+            selecao=args.selecao
         )
 
     # Quadros mobile
@@ -482,13 +529,25 @@ def principal():
         dir_mobile = pasta_saida / "mobile"
         info_mobile = extrair_quadros(
             args.entrada, dir_mobile, quadros_alvo,
-            res_mobile, args.qualidade, rotulo="mobile", filtro=args.filtro
+            res_mobile, qualidade_mobile, rotulo="mobile", filtro=args.filtro,
+            selecao=args.selecao
         )
 
     # Gera o manifest
+    stops = None
+    if args.stops:
+        try:
+            stops = [round(float(v), 4) for v in args.stops.split(",") if v.strip()]
+        except ValueError:
+            print("Erro: --stops deve ser uma lista de números separados por vírgula", file=sys.stderr)
+            sys.exit(1)
+
     manifest = gerar_manifest(
         pasta_saida, info_video, quadros_alvo, altura_scroll,
         args.qualidade, info_desktop, info_mobile,
+        qualidade_desktop=qualidade_desktop,
+        qualidade_mobile=qualidade_mobile,
+        filtro=args.filtro, selecao=args.selecao, stops=stops,
     )
 
     # Mostra o resumo

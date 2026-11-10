@@ -207,7 +207,7 @@ python scripts/checar_contraste.py \
 |----------|------------|
 | Marca d'água fixa | `-vf "delogo=x=W:y=H:w=W:h=H"` na extração (calibre com 1 screenshot). Confirme os termos de uso da ferramenta geradora antes de publicar |
 | Texto errado gravado | Chip HTML correto sobre a região, visível só na janela de frames (`data-show-at`). Plano B: blur + scrim |
-| Título duplicado no hero | Hero usa HTML real (SEO/a11y); comece o mapeamento animado após o título do vídeo (ex.: frame 24) e reserve o frame 0 como poster estático |
+| Título duplicado no hero | Hero usa HTML real (SEO/a11y). Duas saídas: **(a)** começar a animação depois do título gravado e usar outro frame como poster; **(b)** manter o frame 0 como poster e escurecer o título gravado com scrim forte (≥ 0,95), virando textura. Registre a escolha no doc do projeto |
 
 ### 3. Extrair e Otimizar os Quadros
 
@@ -218,19 +218,36 @@ python3 scripts/extrair_quadros.py \
   --entrada "/caminho/video.mp4" \
   --saida "sites-animados/{slug}/quadros" \
   --quadros {N} \
-  --qualidade 70 \
-  --filtro "delogo=x={x}:y={y}:w={w}:h={h}"
+  --qualidade-desktop 70 \
+  --qualidade-mobile 65 \
+  --res-desktop 1280x720 \
+  --res-mobile 720x405 \
+  --altura-scroll 590 \
+  --filtro "delogo=x={x}:y={y}:w={w}:h={h}" \
+  --selecao "not(mod(n,2))+between(n,72,143)" \
+  --stops "0.0385,0.1154,0.1923,0.4615,0.8077,0.9615"
 ```
 
-O `--filtro` é opcional: use para remover marca d'água (`delogo`) ou aplicar
-qualquer filtro FFmpeg antes do redimensionamento.
-
-Aponte `--output` para uma pasta dentro do diretório de trabalho atual.
+- `--filtro` (opcional): remove marca d'água (`delogo`) ou aplica qualquer
+  filtro FFmpeg antes do redimensionamento.
+- `--selecao` (opcional): expressão `select` para densidade não uniforme —
+  dobra o fps numa cena de ação sem estourar o budget.
+- `--qualidade-desktop` / `--qualidade-mobile`: budgets separados (desktop
+  < 8 MB, mobile < 3 MB).
+- `--altura-scroll`: sobrescreve a heurística (a altura ideal depende do
+  número de seções, não só de quadros).
+- `--stops`: grava os centros de pausa no manifest (progresso efetivo).
 
 O script gera:
-- `quadros/desktop/` — frames 1920x1080 em WebP
-- `quadros/mobile/` — frames 960x540 em WebP
-- `quadros/manifest.json` — metadados (contagens, tamanhos, altura do scroll)
+- `quadros/desktop/` — frames na resolução desktop em WebP
+- `quadros/mobile/` — frames na resolução mobile em WebP
+- `quadros/manifest.json` — metadados (contagens, tamanhos, filtro, seleção,
+  stops, altura do scroll)
+
+**Amostragem não uniforme quebra a linearidade progresso↔tempo.** Se usar
+`--selecao`, recalcule os stops no espaço de **progresso efetivo** (fração do
+índice de quadro) e registre o mapa quadro↔tempo. Os textos do motor também
+passam a ser avaliados no progresso efetivo (ver `references/motor-canvas.md`).
 
 Mostre o resumo do manifest ao usuário. Se o pacote passar do budget (>10MB desktop, >5MB mobile), sugira `--qualidade 60` ou menos quadros.
 
@@ -352,12 +369,12 @@ O site empilha vários efeitos. Ordem, do topo para baixo:
 É o que faz o scroll parecer mágico em vez de mecânico. Em vez de mapear a posição do scroll linearmente para os quadros, o motor cria "quase-paradas" em cada seção de conteúdo — o scroll desacelera ali, dando tempo de leitura, e acelera entre seções.
 
 **Como funciona:**
-1. Defina centros de pausa — posições de scroll onde o conteúdo aparece (ex.: 0.065, 0.21, 0.365, 0.525, 0.685, 0.89)
-2. Em cada centro, uma densidade Gaussiana atinge pico — ou seja, mais distância de scroll é consumida por unidade de progresso efetivo
-3. Construa uma tabela de integral cumulativa (mapeamento direto)
-4. Inverta-a para a função de remapeamento real (posição do scroll → progresso efetivo)
+1. Defina centros de pausa em **progresso efetivo** (fração do índice de quadro, 0..1) — ex.: `0.0385, 0.1154, 0.1923, 0.4615, 0.8077, 0.9615`
+2. Em cada centro, uma densidade Gaussiana atinge pico — mais distância de scroll é consumida por unidade de progresso efetivo
+3. Construa uma tabela de integral cumulativa (mapeamento direto) `F(y)`
+4. Inverta-a: `remap(x) = F⁻¹(x)` (posição do scroll → progresso efetivo). **Sem a inversa, o vídeo acelera nos stops**
 
-Os centros de pausa devem bater com os valores `data-show-at` das seções de texto. Com 6 seções, espace-as de forma razoavelmente uniforme em 0-1, mas afastadas das bordas.
+Os centros de pausa e os `data-show-at` das seções ficam no **mesmo espaço** (progresso efetivo). Com 6 seções, espace-as de forma razoavelmente uniforme em 0-1, mas afastadas das bordas. Se a extração usar `--selecao` (amostragem não uniforme), recalcule os stops a partir do mapa quadro↔tempo.
 
 Parâmetros para ajustar:
 - `DWELL_WIDTH` (0.045): largura da zona lenta. Menor = pausa mais curta.

@@ -1,0 +1,46 @@
+{
+  "origem": {
+    "arquivo": "Anima\u00e7\u00e3o CONECTA-RUA.mp4",
+    "duracao": 10.08,
+    "resolucao": "1280x720",
+    "fps": 24.0,
+    "codec": "hevc",
+    "total_quadros_origem": 241
+  },
+  "quadros": {
+    "quantidade_alvo": 157,
+    "formato": "webp",
+    "qualidade": 70,
+    "padrao_nomes": "frame-{NNNN}.webp"
+  },
+  "extracao": {
+    "filtro": "delogo=x=1104:y=650:w=170:h=60",
+    "selecao": "not(mod(n,2))+between(n,72,143)",
+    "stops": [
+      0.0385,
+      0.1154,
+      0.1923,
+      0.4615,
+      0.8077,
+      0.9615
+    ]
+  },
+  "altura_scroll_recomendada": "590vh",
+  "criado_em": "2026-11-10T12:14:31",
+  "desktop": {
+    "resolucao": "1280x720",
+    "quantidade_real": 157,
+    "bytes_totais": 5929634,
+    "bytes_medios": 37768,
+    "total_mb": 5.65,
+    "qualidade": 70
+  },
+  "mobile": {
+    "resolucao": "720x405",
+    "quantidade_real": 157,
+    "bytes_totais": 3016322,
+    "bytes_medios": 19212,
+    "total_mb": 2.88,
+    "qualidade": 65
+  }
+}

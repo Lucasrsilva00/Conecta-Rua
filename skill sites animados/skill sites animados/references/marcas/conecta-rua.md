@@ -84,12 +84,17 @@ dim 7,67:1, accent 8,78:1 (AAA); laranja grande 5,79:1 (AA).
 
 ## Paradas obrigatórias do site
 
-1. Hero — lema + barra de stats
-2. O Problema — logística, não falta de doadores
-3. A Solução — cadastro em 3 toques
-4. Como Funciona — 3 passos (doador, voluntário, ONG)
-5. Impacto — rastreio, refeições, relatório
-6. CTA final — Quero doar · Quero ser voluntário · Sou ONG
+| # | Seção | Stop (progresso efetivo) | Janela de cena |
+|---|---|---|---|
+| 1 | Hero — lema + barra de stats | 0,0385 | 0,000–0,077 |
+| 2 | O Problema — logística, não falta de doadores | 0,1154 | 0,077–0,154 |
+| 3 | A Solução — cadastro em 3 toques | 0,1923 | 0,154–0,231 |
+| 4 | Como Funciona — 3 passos (doador, voluntário, ONG) | 0,4615 | 0,231–0,692 |
+| 5 | Impacto — rastreio, refeições, relatório | 0,8077 | 0,692–0,923 |
+| 6 | CTA final — Quero doar · Quero ser voluntário · Sou ONG | 0,9615 | 0,923–1,000 |
+
+> Stops em progresso efetivo (fração do índice de quadro), calibrados para a
+> amostragem não uniforme de 157 quadros. Ver `extracao.md` do projeto.
 
 ## Restrições
 
@@ -97,6 +102,8 @@ dim 7,67:1, accent 8,78:1 (AAA); laranja grande 5,79:1 (AA).
   `delogo=x=1104:y=650:w=170:h=60` na extração (ver SKILL.md, Passo 3).
 - Textos gravados no vídeo têm erros de português ("Desgãs de Alimentos"):
   cobrir com chip HTML correto ou desfocar na janela de frames indicada.
-- Título "CONECTA-RUA" gravado no vídeo: hero usa HTML real; a via animada
-  começa no frame 24 (1s), reservando o frame 0 como poster estático.
+- Título "CONECTA-RUA" gravado no vídeo: o hero usa HTML real (`h1`) por SEO e
+  acessibilidade. A animação começa no **frame 0** (poster), com o título
+  gravado sob scrim de 0,95 — vira textura de fundo. O frame 0 é também o
+  poster do `prefers-reduced-motion`/noscript.
 - `prefers-reduced-motion`: poster estático (frame 0) + seções em fluxo normal.
