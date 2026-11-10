@@ -77,16 +77,20 @@ cor média **#C0C3AE** (RGB 192,195,174).
 | Quadro escuro (fade 9,5 s) | `#040005` | > 17:1 | AA + AAA |
 
 **Conclusão:** o scrim lateral **não pode** ser um fade linear até 0 em 55%.
-Deve manter **≥ 0,85 de opacidade até 40% da largura** e só então abrir:
+Deve manter **≥ 0,90 de opacidade até 48% da largura** (fim da coluna de texto)
+e só então abrir. Pior caso medido (pixel branco puro no frame 109):
 
 ```css
 --scrim-lateral: linear-gradient(
   90deg,
-  rgba(5, 8, 10, 0.94) 0%,
-  rgba(5, 8, 10, 0.88) 40%,
-  rgba(5, 8, 10, 0) 66%
+  rgba(5, 8, 10, 0.95) 0%,
+  rgba(5, 8, 10, 0.90) 48%,
+  rgba(5, 8, 10, 0) 72%
 );
 ```
+
+Com 0,90 sobre branco: texto 14,63:1 · dim 7,67:1 · accent 8,78:1 (todos AAA).
+Relatório completo em `sites-animados/conecta-rua/validacao-contraste.md`.
 
 ## 6. Comandos usados
 

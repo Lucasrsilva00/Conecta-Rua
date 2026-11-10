@@ -51,20 +51,22 @@
 
 ### Scrim lateral calibrado (medido no vídeo real)
 
-O fade linear até 0 em 55% **falha** (4,27:1) sobre o card branco do app.
-Manter opacidade alta até 40% da largura:
+O fade linear até 0 em 55% **falha** (4,27:1) sobre o card branco do app, e o
+pior caso (pixel branco puro na coluna de texto) derruba dim/accent. Manter
+opacidade ≥ 0,90 até 48% da largura:
 
 ```css
 --scrim-lateral: linear-gradient(
   90deg,
-  rgba(5, 8, 10, 0.94) 0%,
-  rgba(5, 8, 10, 0.88) 40%,
-  rgba(5, 8, 10, 0) 66%
+  rgba(5, 8, 10, 0.95) 0%,
+  rgba(5, 8, 10, 0.90) 48%,
+  rgba(5, 8, 10, 0) 72%
 );
 ```
 
 Medições: scrim 0,90 sobre `#C0C3AE` → `#181B1A` = **15,67:1** (AAA).
-Texto dim `#A0B8A8` → **8,21:1** (AAA).
+Texto dim `#A0B8A8` → **8,21:1** (AAA). Sobre branco puro: texto 14,63:1,
+dim 7,67:1, accent 8,78:1 (AAA); laranja grande 5,79:1 (AA).
 
 ## Eixos visuais
 
