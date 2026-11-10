@@ -25,3 +25,7 @@ __MACOSX/
 # Amostras de calibração (regeneráveis — ver calibracao.md)
 sites-animados/**/amostras/
 *.raw
+
+# Python
+__pycache__/
+*.pyc
