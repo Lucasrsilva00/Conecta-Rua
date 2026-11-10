@@ -21,3 +21,7 @@ __MACOSX/
 *.log
 .env
 .env.local
+
+# Amostras de calibração (regeneráveis — ver calibracao.md)
+sites-animados/**/amostras/
+*.raw

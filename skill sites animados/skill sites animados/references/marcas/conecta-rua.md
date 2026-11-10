@@ -49,6 +49,23 @@
 - Validar sempre com `scripts/checar_contraste.py` contra o quadro **mais claro**
   (celular aceso) e o **mais escuro** (gota / fade final).
 
+### Scrim lateral calibrado (medido no vídeo real)
+
+O fade linear até 0 em 55% **falha** (4,27:1) sobre o card branco do app.
+Manter opacidade alta até 40% da largura:
+
+```css
+--scrim-lateral: linear-gradient(
+  90deg,
+  rgba(5, 8, 10, 0.94) 0%,
+  rgba(5, 8, 10, 0.88) 40%,
+  rgba(5, 8, 10, 0) 66%
+);
+```
+
+Medições: scrim 0,90 sobre `#C0C3AE` → `#181B1A` = **15,67:1** (AAA).
+Texto dim `#A0B8A8` → **8,21:1** (AAA).
+
 ## Eixos visuais
 
 | Eixo | Valor |
@@ -75,7 +92,7 @@
 ## Restrições
 
 - Vídeo tem marca d'água "Dola AI" no canto inferior direito: aplicar
-  `delogo` na extração (ver SKILL.md, Passo 3).
+  `delogo=x=1104:y=650:w=170:h=60` na extração (ver SKILL.md, Passo 3).
 - Textos gravados no vídeo têm erros de português ("Desgãs de Alimentos"):
   cobrir com chip HTML correto ou desfocar na janela de frames indicada.
 - Título "CONECTA-RUA" gravado no vídeo: hero usa HTML real; a via animada
