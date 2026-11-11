@@ -10,37 +10,30 @@
   "quadros": {
     "quantidade_alvo": 157,
     "formato": "webp",
-    "qualidade": 70,
+    "qualidade": 78,
     "padrao_nomes": "frame-{NNNN}.webp"
   },
   "extracao": {
     "filtro": "delogo=x=1104:y=650:w=170:h=60",
     "selecao": "not(mod(n,2))+between(n,72,143)",
-    "stops": [
-      0.0385,
-      0.1154,
-      0.1923,
-      0.4615,
-      0.8077,
-      0.9615
-    ]
+    "stops": null
   },
   "altura_scroll_recomendada": "480vh",
-  "criado_em": "2026-11-10T12:14:31",
+  "criado_em": "2026-11-11T12:47:51",
   "desktop": {
     "resolucao": "1280x720",
     "quantidade_real": 157,
-    "bytes_totais": 5929634,
-    "bytes_medios": 37768,
-    "total_mb": 5.65,
-    "qualidade": 70
+    "bytes_totais": 6911908,
+    "bytes_medios": 44024,
+    "total_mb": 6.59,
+    "qualidade": 78
   },
   "mobile": {
     "resolucao": "720x405",
     "quantidade_real": 157,
-    "bytes_totais": 3016322,
-    "bytes_medios": 19212,
-    "total_mb": 2.88,
-    "qualidade": 65
+    "bytes_totais": 3112746,
+    "bytes_medios": 19826,
+    "total_mb": 2.97,
+    "qualidade": 68
   }
 }
