@@ -43,7 +43,7 @@ delogo=x=1104:y=650:w=170:h=60
 
 Centros de pausa (dwell) recalibrados para a amostragem não uniforme, em
 **progresso efetivo**: `0.0385 · 0.1154 · 0.1923 · 0.4615 · 0.8077 · 0.9615`
-(PEAK 2.6 · WIDTH 0.04 · altura 590vh · LERP 0.12). Detalhes e mapeamento
+(PEAK 2.6 · WIDTH 0.04 · altura 480vh · LERP 0.12). Detalhes e mapeamento
 quadro↔tempo em `extracao.md`.
 
 ### Decisão do título (duplicação)

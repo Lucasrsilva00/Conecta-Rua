@@ -14,7 +14,7 @@ python extrair_quadros.py \
   --qualidade-mobile 65 \
   --res-desktop 1280x720 \
   --res-mobile 720x405 \
-  --altura-scroll 590 \
+  --altura-scroll 480 \
   --filtro "delogo=x=1104:y=650:w=170:h=60" \
   --selecao "not(mod(n,2))+between(n,72,143)"
 ```
@@ -29,7 +29,7 @@ python extrair_quadros.py \
 - Média por quadro: 37,8 KB (desktop) · 19,2 KB (mobile).
 - `manifest.json` com `total_quadros_origem = 241` (corrigido: usa a duração do
   stream, não a do container).
-- `altura_scroll_recomendada = 590vh` (override via `--altura-scroll`).
+- `altura_scroll_recomendada = 480vh` (override via `--altura-scroll`).
 
 ## 3. Amostragem não uniforme
 
@@ -68,7 +68,7 @@ Os centros de pausa foram recalculados no espaço de **progresso efetivo**
 | P5 Impacto | gota → ondas | 7,5 s | 126 | **0,8077** |
 | P6 CTA | fade com ponto de luz | 9,5 s | 150 | **0,9615** |
 
-Parâmetros: `DWELL_PEAK 2.6 · DWELL_WIDTH 0.04 · 590vh · LERP 0.12`.
+Parâmetros: `DWELL_PEAK 2.6 · DWELL_WIDTH 0.04 · 480vh · LERP 0.12`.
 
 ### Onde a pausa acontece no scroll
 
@@ -111,7 +111,7 @@ python "skill sites animados/skill sites animados/scripts/extrair_quadros.py" \
   --quadros 157 \
   --qualidade-desktop 70 --qualidade-mobile 65 \
   --res-desktop 1280x720 --res-mobile 720x405 \
-  --altura-scroll 590 \
+  --altura-scroll 480 \
   --filtro "delogo=x=1104:y=650:w=170:h=60" \
   --selecao "not(mod(n,2))+between(n,72,143)"
 ```

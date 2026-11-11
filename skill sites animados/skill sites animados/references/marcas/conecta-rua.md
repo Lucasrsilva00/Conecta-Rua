@@ -34,7 +34,7 @@
   --body:    'Inter', 'Roboto', system-ui, sans-serif;
   --raio-card: 12px;
   --raio-botao: 16px;
-  --altura-scroll: 590vh;
+  --altura-scroll: 480vh;
   --dwell-peak: 2.6;
   --dwell-width: 0.04;
   --lerp: 0.12;
@@ -79,7 +79,7 @@ dim 7,67:1, accent 8,78:1 (AAA); laranja grande 5,79:1 (AA).
 | Tipografia | Inter 800 em caixa alta nos títulos, 400 no corpo |
 | Alinhamento | esquerda, alternando nas paradas 4 e 5 |
 | Entrada | opacidade 160ms + translateY(12px) |
-| Ritmo | DWELL_PEAK 2.6 · DWELL_WIDTH 0.04 · 590vh |
+| Ritmo | DWELL_PEAK 2.6 · DWELL_WIDTH 0.04 · 480vh |
 | Cursor | nativo, sem efeitos |
 
 ## Paradas obrigatórias do site
