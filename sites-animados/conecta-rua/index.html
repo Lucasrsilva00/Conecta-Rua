@@ -265,10 +265,10 @@
       -webkit-mask-image: radial-gradient(125% 145% at 50% 50%, #000 66%, rgba(0, 0, 0, 0.85) 82%, transparent 100%);
       mask-image: radial-gradient(125% 145% at 50% 50%, #000 66%, rgba(0, 0, 0, 0.85) 82%, transparent 100%);
       box-shadow: 0 0 0.14em 0.05em rgba(226, 227, 230, 0.4);
-      opacity: 0; transition: opacity 180ms ease;
+      opacity: 0; visibility: hidden; transition: opacity 180ms ease, visibility 0s linear 180ms;
       overflow: hidden;
     }
-    .correcao-typo.ativo { opacity: 1; }
+    .correcao-typo.ativo { opacity: 1; visibility: visible; transition: opacity 180ms ease, visibility 0s; }
     .correcao-typo__palavra {
       font-weight: 600; letter-spacing: -0.015em; line-height: 1;
       font-size: calc(var(--ct-w, 100px) * 0.27);
@@ -1869,7 +1869,8 @@
         }
 
         // O card do vídeo só existe entre os quadros ~29 e ~81.
-        const correcao = desenho >= 29 && desenho <= 81;
+        // Esconde também quando passou da intro (evita legenda flutuante).
+        const correcao = desenho >= 29 && desenho <= 81 && progressoScroll() < 0.99;
         if (correcao !== correcaoAtiva) {
           correcaoAtiva = correcao;
           if (correcaoTypo) correcaoTypo.classList.toggle('ativo', correcao);
@@ -1913,6 +1914,11 @@
             agendado = false;
             atualizarRevelacao();
             atualizarTopo();
+            // Garante que a legenda de correção não fique flutuando após a intro
+            if (progressoScroll() >= 0.99 && correcaoTypo) {
+              correcaoTypo.classList.remove('ativo');
+              correcaoAtiva = false;
+            }
           });
         }
         acordar();
