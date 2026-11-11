@@ -113,3 +113,35 @@ Evite observers ou listeners que disparem desenho fora desse loop.
 - [ ] Cache LRU de ~24 bitmaps decodificados (`createImageBitmap`).
 - [ ] Primeiro quadro em < 1s; LCP = poster.
 - [ ] 60fps em aparelho médio; se cair, cortar partículas antes dos frames.
+
+## 9. Landing em DOM depois da intro
+
+Quando o vídeo é só a abertura, a intro termina na última parada e o restante
+do site é DOM normal. Não estique o canvas pelo site inteiro.
+
+**Revelação reversível (blocos e letras):**
+
+```js
+// p = 0..1 conforme o bloco sobe; voltar o scroll reduz p e desfaz.
+let p = (innerHeight * 0.94 - el.getBoundingClientRect().top) / (innerHeight * 0.4);
+
+// A seção inteira precisa terminar antes do usuário parar com ela no topo.
+// Sem isto, o último item de uma lista longa fica apagado.
+const rs = el.closest('.secao').getBoundingClientRect();
+p = Math.max(p, (innerHeight * 0.9 - rs.top) / (innerHeight * 0.35));
+```
+
+- Escreva `p` em `--p` no elemento e use `opacity: var(--p)` +
+  `translateY(calc((1 - var(--p)) * 30px))`. Sem transição CSS: o rAF já
+  interpola e a reversão fica imediata.
+- Letras: quebre o texto em `.palavra > .letra`, com `--d` progressivo
+  (0..0.45). `--lp: clamp(0, calc((var(--p) - var(--d)) * 3.2), 1)`.
+  Preserve elementos internos (`<span class="destaque">`) percorrendo nós de
+  texto recursivamente.
+- Acessibilidade: guarde o texto original em `aria-label` antes de quebrar;
+  leitores de tela não devem ler letra por letra.
+- `prefers-reduced-motion`: force `--p: 1`, letras sem transform e blocos
+  visíveis. A intro vira poster + paradas em fluxo normal.
+- Atualize a revelação em um `scroll` com `requestAnimationFrame` (throttle),
+  separado do loop do canvas. O loop do canvas pode parar quando o LERP
+  assenta; não deixe um rAF eterno só para revelar DOM.
