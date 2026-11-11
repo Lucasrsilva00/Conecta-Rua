@@ -49,9 +49,9 @@ apagado.
 - Cursor nativo; sem partículas ou efeitos pesados.
 - Contraste: scrim lateral 0,95/0,90 até 48%; scrim vertical no mobile.
   Botão sólido `#C2410C` com branco = 5,4:1.
-- Orçamento de quadros: **5,65 MB** desktop (< 8 MB) e **2,88 MB** mobile
-  (< 3 MB). Medição real no navegador: **5,70 MiB** e **2,92 MiB**
-  (157 quadros + HTML; fontes externas à parte).
+- Orçamento de quadros: **6,59 MB** desktop (< 8 MB) e **2,97 MB** mobile
+  (< 3 MB). Qualidade WebP elevada para 78 (desktop) e 68 (mobile), mantendo
+  a resolução nativa 720p do vídeo-fonte (HEVC 1280×720, 24 fps).
 
 ## Defeitos do vídeo tratados
 
