@@ -57,10 +57,11 @@ apagado.
 
 - Marca d'água "Dola AI" removida na extração com
   `delogo=x=1104:y=650:w=170:h=60`.
-- Título "CONECTA RUA" gravado no vídeo fica sob véu de 0,74 na parada 1;
-  o `h1` real em HTML é a informação principal.
-- O card com o typo "Desgãs de Alimentos" é desfocado na janela do zoom
-  (`efetivo 0,44–0,64`), sem afetar o restante da animação.
+- Título "CONECTA RUA" gravado no vídeo fica sob véu local na parada 1
+  (ativa até efetivo 0,074); o `h1` real em HTML é a informação principal.
+- O typo "Desgãs de Alimentos" do vídeo é corrigido com patch local
+  (fundo translúcido + backdrop-filter + máscara radial) na janela do zoom
+  (`efetivo 0,32–0,56`), sem afetar o restante da animação.
 
 ## QA executado
 
