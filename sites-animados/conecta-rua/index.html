@@ -297,6 +297,35 @@
     }
     .veu-titulo.ativo { opacity: 1; }
 
+    /* Navegação lateral fixa */
+    .nav-lateral {
+      position: fixed; left: 16px; top: 50%; transform: translateY(-50%);
+      z-index: 60; display: flex; flex-direction: column; gap: 6px;
+      padding: 12px 8px; border-radius: 20px;
+      background: rgba(8, 14, 12, 0.72);
+      border: 1px solid rgba(190, 255, 214, 0.12);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
+      backdrop-filter: blur(12px) saturate(1.1);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .nav-lateral__item {
+      display: grid; place-items: center;
+      width: 40px; height: 40px; border-radius: 12px;
+      color: rgba(230, 246, 238, 0.7);
+      transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+    }
+    .nav-lateral__item svg { width: 20px; height: 20px; }
+    .nav-lateral__item:hover {
+      color: var(--text); background: rgba(52, 217, 123, 0.1);
+      transform: scale(1.08);
+    }
+    .nav-lateral__item.ativo {
+      color: #04140b; background: #fff;
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+    }
+    .nav-lateral__item.ativo svg { stroke: #04140b; }
+    @media (max-width: 900px) { .nav-lateral { display: none; } }
+
     .paradas { position: absolute; inset: 0; z-index: 10; }
     .parada {
       --p: 0;
@@ -637,6 +666,45 @@
     .perfil { transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease; }
     .perfil:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); border-color: rgba(52, 217, 123, 0.35); }
 
+    /* --- Carrossel de missões ----------------------------------------- */
+    .carrossel-missoes { margin-top: clamp(32px, 5vw, 56px); position: relative; }
+    .carrossel-missoes__trilha {
+      display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory;
+      scrollbar-width: none; -ms-overflow-style: none; padding: 8px 4px 16px;
+    }
+    .carrossel-missoes__trilha::-webkit-scrollbar { display: none; }
+    .cartao-missao {
+      flex: 0 0 min(320px, 85vw); scroll-snap-align: center;
+      border-radius: var(--raio-card); overflow: hidden;
+      border: 1px solid var(--line-2); background: var(--surface);
+      transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
+    }
+    .cartao-missao:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(0,0,0,0.4); border-color: rgba(52,217,123,0.3); }
+    .cartao-missao__img { position: relative; aspect-ratio: 16/10; overflow: hidden; background: var(--bg-2); }
+    .cartao-missao__img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: transform 400ms ease; }
+    .cartao-missao:hover .cartao-missao__img img { transform: scale(1.06); }
+    .cartao-missao__num {
+      position: absolute; top: 10px; left: 10px; z-index: 2;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(5,8,10,0.7); border: 1px solid var(--line-2);
+      color: var(--verde); font-weight: 700; font-size: 0.8rem;
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    }
+    .cartao-missao__corpo { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 8px; }
+    .cartao-missao__corpo h4 { font-size: 1.1rem; text-transform: none; margin: 0; }
+    .cartao-missao__local { color: var(--muted); font-size: 0.8rem; }
+    .cartao-missao__dados { display: flex; gap: 12px; font-size: 0.78rem; color: var(--text-dim); }
+    .cartao-missao__pts { color: var(--verde); font-weight: 700; font-size: 0.85rem; }
+    .carrossel-missoes__controles { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
+    .carrossel-missoes__btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--line-2); background: var(--surface);
+      color: var(--text); font-size: 1.2rem; cursor: pointer;
+      transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+    }
+    .carrossel-missoes__btn:hover { background: var(--surface-2); border-color: var(--verde); transform: scale(1.08); }
+
     /* --- Missões ------------------------------------------------------ */
     .missoes__grade { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(24px, 4vw, 48px); align-items: center; }
     .missao {
@@ -968,6 +1036,31 @@
     <a class="btn btn--pequeno" href="#app">Entrar</a>
   </header>
 
+  <!-- Navegação lateral fixa -->
+  <nav class="nav-lateral" aria-label="Navegação lateral">
+    <a href="#inicio" class="nav-lateral__item ativo" aria-label="Início">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <a href="#perfis" class="nav-lateral__item" aria-label="Perfis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </a>
+    <a href="#missoes" class="nav-lateral__item" aria-label="Missões">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    </a>
+    <a href="#classificacao" class="nav-lateral__item" aria-label="Classificação">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+    </a>
+    <a href="#recompensas" class="nav-lateral__item" aria-label="EcoPontos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+    </a>
+    <a href="#gestao" class="nav-lateral__item" aria-label="Painel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </a>
+    <a href="#app" class="nav-lateral__item" aria-label="Entrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+    </a>
+  </nav>
+
   <main id="conteudo">
 
     <!-- ==================================================================
@@ -1080,16 +1173,16 @@
         <div class="impacto__topo">
           <div data-reveal>
             <span class="rotulo">Resgatado esta semana <span class="ao-vivo">ao vivo</span></span>
-            <p class="impacto__numero">3.482 <small>kg</small></p>
+            <p class="impacto__numero"><span data-contar="3482" data-sufixo="">3.482</span> <small>kg</small></p>
             <p class="impacto__delta">+18% vs. semana passada</p>
           </div>
           <p class="impacto__texto" data-reveal>Feirantes, voluntários e ONGs de Camaçari operando na mesma rede. O excedente de hoje é a refeição de amanhã — com rota, peso e destino registrados.</p>
         </div>
         <dl class="impacto__grade" data-reveal>
-          <div class="impacto__item"><dt>Alimentos resgatados</dt><dd>12,4 <span>t</span></dd></div>
-          <div class="impacto__item"><dt>Voluntários ativos</dt><dd>860</dd></div>
-          <div class="impacto__item"><dt>ONGs parceiras</dt><dd>37</dd></div>
-          <div class="impacto__item"><dt>Missões concluídas</dt><dd>1.204</dd></div>
+          <div class="impacto__item"><dt>Alimentos resgatados</dt><dd><span data-contar="12.4" data-sufixo="">12,4</span> <span>t</span></dd></div>
+          <div class="impacto__item"><dt>Voluntários ativos</dt><dd><span data-contar="860" data-sufixo="">860</span></dd></div>
+          <div class="impacto__item"><dt>ONGs parceiras</dt><dd><span data-contar="37" data-sufixo="">37</span></dd></div>
+          <div class="impacto__item"><dt>Missões concluídas</dt><dd><span data-contar="1204" data-sufixo="">1.204</span></dd></div>
         </dl>
       </div>
     </section>
@@ -1179,6 +1272,64 @@
             <p class="missao__nota">Resgate até 18h40 · voluntário com baú ou carro</p>
           </article>
         </div>
+
+        <!-- Carrossel de missões -->
+        <div class="carrossel-missoes" data-reveal>
+          <div class="carrossel-missoes__trilha" id="carrosselTrilha">
+            <article class="cartao-missao">
+              <div class="cartao-missao__img">
+                <img src="quadros/desktop/frame-0090.webp" alt="Missão 1" loading="lazy" decoding="async">
+                <span class="cartao-missao__num">1</span>
+              </div>
+              <div class="cartao-missao__corpo">
+                <h4>Doação de Alimentos</h4>
+                <p class="cartao-missao__local">Feira de Camaçari → Cozinha Solidária</p>
+                <div class="cartao-missao__dados">
+                  <span>2,5 km</span>
+                  <span>48 kg</span>
+                  <span>15 min</span>
+                </div>
+                <span class="cartao-missao__pts">+350 EcoPontos</span>
+              </div>
+            </article>
+            <article class="cartao-missao">
+              <div class="cartao-missao__img">
+                <img src="quadros/desktop/frame-0105.webp" alt="Missão 2" loading="lazy" decoding="async">
+                <span class="cartao-missao__num">2</span>
+              </div>
+              <div class="cartao-missao__corpo">
+                <h4>Hortifruti Solidário</h4>
+                <p class="cartao-missao__local">Hortifruti Vila → Gleba A</p>
+                <div class="cartao-missao__dados">
+                  <span>1,8 km</span>
+                  <span>22 kg</span>
+                  <span>12 min</span>
+                </div>
+                <span class="cartao-missao__pts">+220 EcoPontos</span>
+              </div>
+            </article>
+            <article class="cartao-missao">
+              <div class="cartao-missao__img">
+                <img src="quadros/desktop/frame-0120.webp" alt="Missão 3" loading="lazy" decoding="async">
+                <span class="cartao-missao__num">3</span>
+              </div>
+              <div class="cartao-missao__corpo">
+                <h4>Mercado Municipal</h4>
+                <p class="cartao-missao__local">Mercado Municipal → Mãos Unidas</p>
+                <div class="cartao-missao__dados">
+                  <span>3,2 km</span>
+                  <span>35 kg</span>
+                  <span>55 min</span>
+                </div>
+                <span class="cartao-missao__pts">+280 EcoPontos</span>
+              </div>
+            </article>
+          </div>
+          <div class="carrossel-missoes__controles">
+            <button class="carrossel-missoes__btn" id="carrosselPrev" aria-label="Missão anterior">‹</button>
+            <button class="carrossel-missoes__btn" id="carrosselNext" aria-label="Próxima missão">›</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1193,31 +1344,31 @@
           <li data-reveal>
             <span class="ranking__pos">1</span>
             <span class="ranking__nome">Equipe Sol Nascente <span>Feira do Centro</span></span>
-            <span class="ranking__kg">1.280 kg salvos</span>
+            <span class="ranking__kg"><span data-contar="1280" data-sufixo="">1.280</span> kg salvos</span>
             <span class="ranking__pts">9.420 pts</span>
           </li>
           <li data-reveal>
             <span class="ranking__pos">2</span>
             <span class="ranking__nome">Ana Ribeiro <span>Voluntária · Arembepe</span></span>
-            <span class="ranking__kg">940 kg salvos</span>
+            <span class="ranking__kg"><span data-contar="940" data-sufixo="">940</span> kg salvos</span>
             <span class="ranking__pts">7.110 pts</span>
           </li>
           <li data-reveal>
             <span class="ranking__pos">3</span>
             <span class="ranking__nome">Moto Solidária <span>Coletivos parceiros</span></span>
-            <span class="ranking__kg">815 kg salvos</span>
+            <span class="ranking__kg"><span data-contar="815" data-sufixo="">815</span> kg salvos</span>
             <span class="ranking__pts">6.380 pts</span>
           </li>
           <li data-reveal>
             <span class="ranking__pos">4</span>
             <span class="ranking__nome">Seu Jorge — Banca 12 <span>Mercado Municipal</span></span>
-            <span class="ranking__kg">702 kg salvos</span>
+            <span class="ranking__kg"><span data-contar="702" data-sufixo="">702</span> kg salvos</span>
             <span class="ranking__pts">5.240 pts</span>
           </li>
           <li data-reveal>
             <span class="ranking__pos">5</span>
             <span class="ranking__nome">ONG Mãos Unidas <span>Gleba A</span></span>
-            <span class="ranking__kg">655 kg salvos</span>
+            <span class="ranking__kg"><span data-contar="655" data-sufixo="">655</span> kg salvos</span>
             <span class="ranking__pts">4.980 pts</span>
           </li>
         </ol>
@@ -1234,17 +1385,17 @@
         </div>
         <div class="recompensas__grade">
           <article class="recompensa vidro" data-reveal>
-            <span class="recompensa__pts">1.500 pts</span>
+            <span class="recompensa__pts"><span data-contar="1500" data-sufixo="">1.500</span> pts</span>
             <h3>Horas complementares</h3>
             <p>Certificado de participação para estudantes e projetos de extensão.</p>
           </article>
           <article class="recompensa vidro" data-reveal>
-            <span class="recompensa__pts">3.000 pts</span>
+            <span class="recompensa__pts"><span data-contar="3000" data-sufixo="">3.000</span> pts</span>
             <h3>Selo Comércio Sustentável</h3>
             <p>Selo para a sua banca ou mercado, com histórico de doações verificadas.</p>
           </article>
           <article class="recompensa vidro" data-reveal>
-            <span class="recompensa__pts">800 pts</span>
+            <span class="recompensa__pts"><span data-contar="800" data-sufixo="">800</span> pts</span>
             <h3>Brindes locais</h3>
             <p>Camisas, sacolas e produtos de parceiros de Camaçari.</p>
           </article>
@@ -1726,6 +1877,18 @@
         }
       }
 
+      // Spy de scroll para a navegação lateral
+      const navItens = [...document.querySelectorAll('.nav-lateral__item')];
+      const secoes = navItens.map((a) => document.querySelector(a.getAttribute('href')));
+      const atualizarNavLateral = () => {
+        const y = scrollY + innerHeight * 0.35;
+        let idx = 0;
+        secoes.forEach((s, i) => { if (s && s.offsetTop <= y) idx = i; });
+        navItens.forEach((a, i) => a.classList.toggle('ativo', i === idx));
+      };
+      addEventListener('scroll', atualizarNavLateral, { passive: true });
+      atualizarNavLateral();
+
       let agendado = false;
       addEventListener('scroll', () => {
         if (!agendado) {
@@ -1746,6 +1909,18 @@
       }, { passive: true });
 
       /* ===================================================================
+         CARROSSEL DE MISSÕES
+         =================================================================== */
+      const trilha = document.getElementById('carrosselTrilha');
+      const btnPrev = document.getElementById('carrosselPrev');
+      const btnNext = document.getElementById('carrosselNext');
+      if (trilha && btnPrev && btnNext) {
+        const passo = () => trilha.querySelector('.cartao-missao')?.offsetWidth + 20 || 340;
+        btnPrev.addEventListener('click', () => trilha.scrollBy({ left: -passo(), behavior: 'smooth' }));
+        btnNext.addEventListener('click', () => trilha.scrollBy({ left: passo(), behavior: 'smooth' }));
+      }
+
+      /* ===================================================================
          NAVEGAÇÃO ENTRE PARADAS
          =================================================================== */
       pontos.forEach((botao, i) => {
@@ -1755,6 +1930,32 @@
           scrollTo({ top: topoDestino, behavior: reduzir ? 'auto' : 'smooth' });
         });
       });
+
+      /* ===================================================================
+         ANIMAÇÃO DE CONTAGEM (EcoPontos / impacto)
+         =================================================================== */
+      const animarContagem = (el, alvo, sufixo = '', duracao = 1500) => {
+        const inicio = performance.now();
+        const passo = (agora) => {
+          const t = Math.min(1, (agora - inicio) / duracao);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const valor = Math.round(alvo * eased);
+          el.textContent = valor.toLocaleString('pt-BR') + sufixo;
+          if (t < 1) requestAnimationFrame(passo);
+        };
+        requestAnimationFrame(passo);
+      };
+      const observadorContagem = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.querySelectorAll('[data-contar]').forEach((el) => {
+            if (el.dataset.contado) return;
+            el.dataset.contado = '1';
+            animarContagem(el, parseFloat(el.dataset.contar), el.dataset.sufixo || '');
+          });
+        });
+      }, { threshold: 0.25 });
+      document.querySelectorAll('.secao').forEach((s) => observadorContagem.observe(s));
 
       /* ===================================================================
          INIT
