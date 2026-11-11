@@ -406,6 +406,14 @@
       box-shadow: 0 0 10px rgba(52, 217, 123, 0.85);
     }
 
+    /* Brilho verde sutil na entrada dos títulos */
+    @keyframes brilho-titulo {
+      0% { text-shadow: 0 0 0 rgba(52, 217, 123, 0); }
+      40% { text-shadow: 0 0 24px rgba(52, 217, 123, 0.35), 0 0 48px rgba(52, 217, 123, 0.15); }
+      100% { text-shadow: 0 0 0 rgba(52, 217, 123, 0); }
+    }
+    .parada.ativa [data-letras] { animation: brilho-titulo 1.2s ease-out 0.3s both; }
+
     /* Letras: revelação por máscara + profundidade, com varredura de luz. */
     .parada [data-letras] .letra {
       opacity: 0;
@@ -766,7 +774,14 @@
       padding: 14px 18px; border: 1px solid var(--line);
       border-radius: 12px; background: var(--surface);
     }
-    .ranking li:nth-child(1) { border-color: rgba(52, 217, 123, 0.45); background: linear-gradient(90deg, rgba(52, 217, 123, 0.09), var(--surface) 40%); }
+    .ranking li:nth-child(1) {
+      border-color: rgba(52, 217, 123, 0.6);
+      background: linear-gradient(90deg, rgba(52, 217, 123, 0.14), var(--surface) 50%);
+      box-shadow: 0 0 32px -8px rgba(52, 217, 123, 0.35), inset 0 1px 0 rgba(52, 217, 123, 0.15);
+    }
+    .ranking li:nth-child(1) .ranking__pos {
+      box-shadow: 0 0 16px rgba(52, 217, 123, 0.5);
+    }
     .ranking__pos {
       display: grid; place-items: center; width: 32px; height: 32px;
       border-radius: 50%; background: rgba(255, 255, 255, 0.04);
@@ -987,6 +1002,7 @@
       .trilha, .dica, .correcao-typo, .veu-titulo { display: none; }
       [data-reveal] { --p: 1 !important; opacity: 1; transform: none; }
       *, *::before, *::after { transition: none !important; animation: none !important; }
+      [data-letras] { animation: none !important; }
       .parada [data-letras] .letra,
       [data-letras] .letra {
         opacity: 1 !important; transform: none !important;
@@ -1945,6 +1961,20 @@
         };
         requestAnimationFrame(passo);
       };
+      // Brilho verde nos títulos de seção ao entrar na viewport
+      const observadorBrilho = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const titulos = e.target.querySelectorAll('h2, h3');
+          titulos.forEach((t, i) => {
+            t.style.animation = 'none';
+            void t.offsetHeight;
+            t.style.animation = `brilho-titulo 1.2s ease-out ${i * 0.1}s both`;
+          });
+        });
+      }, { threshold: 0.3 });
+      document.querySelectorAll('.secao').forEach((s) => observadorBrilho.observe(s));
+
       const observadorContagem = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (!e.isIntersecting) return;
