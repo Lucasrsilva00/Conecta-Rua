@@ -133,8 +133,8 @@
 
     .rotulo {
       display: inline-flex; align-items: center; gap: 8px;
-      font-size: 0.78rem; font-weight: 700;
-      letter-spacing: 0.22em; text-transform: uppercase;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.02em;
       color: var(--verde); margin-bottom: 14px;
     }
     .rotulo::before {
@@ -369,7 +369,7 @@
       backdrop-filter: blur(9px) saturate(1.1);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
       color: var(--text);
-      font-size: 0.72rem; letter-spacing: 0.16em;
+      font-size: 0.72rem; letter-spacing: 0.02em;
     }
     .parada--hero .rotulo::before {
       width: 8px; height: 8px; border-radius: 50%;
@@ -519,7 +519,6 @@
       text-transform: uppercase; margin-bottom: 14px;
     }
     .secao__linha { color: var(--text-dim); font-size: clamp(1rem, 1.2vw, 1.08rem); max-width: 62ch; }
-    .destaque { color: var(--verde); }
     .sr {
       position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
       overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
@@ -549,9 +548,6 @@
     .secao [data-letras] .letra {
       background-image: var(--grad-titulo-verde);
       clip-path: inset(0 0 calc((1 - var(--lp)) * 100%) 0);
-    }
-    .secao [data-letras] .destaque .letra {
-      background-image: linear-gradient(180deg, #eaffd6 0%, #a4f06c 32%, #34d97b 66%, #12834b 100%);
     }
     .hero-titulo .linha:last-child .letra {
       background-image: var(--grad-titulo-verde);
@@ -1102,7 +1098,7 @@
       <div class="container">
         <div class="secao__cabeca" data-reveal>
           <span class="rotulo">Três perfis, um propósito</span>
-          <h2 id="titulo-perfis" data-letras>Escolha como você quer <span class="destaque">ajudar</span></h2>
+          <h2 id="titulo-perfis" data-letras>Escolha como você quer ajudar</h2>
           <p class="secao__linha">Não importa se você tem uma banca, uma moto ou uma cozinha comunitária. A rede se completa com quem doa, quem leva e quem recebe.</p>
         </div>
         <div class="perfis">
@@ -1114,7 +1110,7 @@
               <span class="perfil__tag">Doador / Feirante</span>
               <h3>Cadastre a sobra em 3 passos</h3>
               <p>Tipo de alimento, quantidade e confirmar. Pronto: sua doação entra no mapa e alguém já pode coletar.</p>
-              <a href="#app">Quero doar →</a>
+              <a href="#app">Quero doar</a>
             </div>
           </article>
 
@@ -1126,7 +1122,7 @@
               <span class="perfil__tag">Voluntário</span>
               <h3>Aceite missões no mapa</h3>
               <p>Veja distância, peso e prazo. Colete no ponto combinado e entregue direto para a ONG mais próxima.</p>
-              <a href="#missoes">Ver missões →</a>
+              <a href="#missoes">Ver missões</a>
             </div>
           </article>
 
@@ -1138,7 +1134,7 @@
               <span class="perfil__tag">ONG</span>
               <h3>Receba com rastreio</h3>
               <p>Alimentos frescos com histórico de coleta e relatórios de impacto para prestar contas à sua comunidade.</p>
-              <a href="#app">Sou ONG →</a>
+              <a href="#app">Sou ONG</a>
             </div>
           </article>
         </div>
@@ -1149,7 +1145,7 @@
       <div class="container">
         <div class="secao__cabeca" data-reveal>
           <span class="rotulo">Mapa de missões · ao vivo</span>
-          <h2 id="titulo-missoes" data-letras>Missões abertas em <span class="destaque">Camaçari</span></h2>
+          <h2 id="titulo-missoes" data-letras>Missões abertas em Camaçari</h2>
           <p class="secao__linha">Rotas curtas, peso conhecido e prazo claro. Aceite a que cabe no seu caminho — a ONG acompanha cada etapa.</p>
         </div>
         <div class="missoes__grade">
@@ -1190,7 +1186,7 @@
       <div class="container">
         <div class="secao__cabeca" data-reveal>
           <span class="rotulo">Classificação da semana · Camaçari</span>
-          <h2 id="titulo-classificacao" data-letras>Quem mais salvou <span class="destaque">alimentos</span></h2>
+          <h2 id="titulo-classificacao" data-letras>Quem mais salvou alimentos</h2>
           <p class="secao__linha">Classificação por quilos resgatados nos últimos sete dias. Todo mundo começa com uma missão.</p>
         </div>
         <ol class="ranking">
@@ -1233,7 +1229,7 @@
       <div class="container">
         <div class="secao__cabeca" data-reveal>
           <span class="rotulo">EcoPontos</span>
-          <h2 id="titulo-recompensas" data-letras>Troque seus <span class="destaque">EcoPontos</span></h2>
+          <h2 id="titulo-recompensas" data-letras>Troque seus EcoPontos</h2>
           <p class="secao__linha">Cada missão concluída rende pontos. Dá para trocar por horas complementares, selo para a banca ou brindes de parceiros locais.</p>
         </div>
         <div class="recompensas__grade">
