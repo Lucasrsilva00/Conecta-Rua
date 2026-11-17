@@ -195,10 +195,10 @@
       font-size: 1.05rem; text-decoration: none; white-space: nowrap;
     }
     .marca:hover { text-decoration: none; }
-    .marca__ponto {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--verde);
-      box-shadow: 0 0 0 4px rgba(52, 217, 123, 0.16);
+    .marca__logo {
+      height: 40px; width: auto; max-width: 44px;
+      object-fit: contain; display: block;
+      flex: none;
     }
     .topo__nav { display: flex; align-items: center; gap: clamp(10px, 2vw, 26px); margin-left: auto; }
     .topo__nav a {
@@ -210,6 +210,7 @@
     @media (max-width: 860px) {
       .topo__nav { display: none; }
       .topo .btn { margin-left: auto; }
+      .marca__logo { height: 34px; }
     }
 
     /* =====================================================================
@@ -1125,7 +1126,7 @@
 
   <header class="topo" id="topo">
     <a class="marca" href="#inicio" aria-label="Conecta-Rua — início">
-      <span class="marca__ponto" aria-hidden="true"></span> Conecta-Rua
+      <img class="marca__logo" src="../../img/Logo.png" alt="" aria-hidden="true" width="40" height="40"> Conecta-Rua
     </a>
     <nav class="topo__nav" aria-label="Navegação principal">
       <a href="#perfis">Perfis</a>
