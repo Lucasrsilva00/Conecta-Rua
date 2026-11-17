@@ -767,6 +767,87 @@
       font-size: 0.74rem; color: var(--text-dim);
     }
     .mapa__legenda strong { color: var(--verde); }
+    .mapa__container { position: absolute; inset: 0; z-index: 1; }
+    .mapa__container .leaflet-container { background: var(--bg); font-family: var(--body); }
+    .mapa__recentrar {
+      position: absolute; right: 14px; top: 14px; z-index: 2;
+      padding: 8px 12px; border-radius: 10px;
+      background: rgba(5, 8, 10, 0.82); border: 1px solid var(--line-2);
+      color: var(--text); font: 600 0.74rem/1 var(--body); cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .mapa__recentrar:hover { border-color: var(--verde); color: var(--verde); }
+    .mapa__recentrar:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+    .mapa__seletor {
+      position: absolute; right: 14px; bottom: 14px; z-index: 2;
+      display: flex; gap: 4px; padding: 4px;
+      background: rgba(5, 8, 10, 0.82); border: 1px solid var(--line-2);
+      border-radius: 10px; backdrop-filter: blur(8px);
+    }
+    .mapa__seletor-btn {
+      padding: 6px 12px; border-radius: 7px; border: 0;
+      background: transparent; color: var(--text-dim);
+      font: 600 0.72rem/1 var(--body); cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .mapa__seletor-btn.ativo {
+      background: var(--verde); color: var(--bg);
+    }
+    .mapa__seletor-btn:hover:not(.ativo) { color: var(--verde); }
+    .mapa__seletor-btn:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+    /* Marcador do SENAI — destaque verde-limão com pulso */
+    .mapa__container .marcador-senai {
+      background: transparent; border: 0;
+    }
+    .mapa__container .marcador-senai__ponto {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--verde); border: 2px solid var(--bg);
+      box-shadow: 0 0 0 4px rgba(52, 217, 123, 0.35), 0 0 12px rgba(52, 217, 123, 0.6);
+      position: relative;
+      animation: senai-pulso 2s ease-out infinite;
+    }
+    .mapa__container .marcador-senai__ponto::after {
+      content: ""; position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid rgba(52, 217, 123, 0.6);
+      animation: senai-anel 2s ease-out infinite;
+    }
+    @keyframes senai-pulso {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    @keyframes senai-anel {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mapa__container .marcador-senai__ponto,
+      .mapa__container .marcador-senai__ponto::after { animation: none; }
+    }
+    /* Tema escuro para os controles do Leaflet */
+    .mapa__container .leaflet-control-zoom a {
+      background: rgba(5, 8, 10, 0.82); color: var(--text); border-color: var(--line-2);
+    }
+    .mapa__container .leaflet-control-zoom a:hover { background: var(--surface); color: var(--verde); }
+    .mapa__container .leaflet-control-attribution {
+      background: rgba(5, 8, 10, 0.7); color: var(--muted); font-size: 0.65rem;
+    }
+    .mapa__container .leaflet-control-attribution a { color: var(--verde); }
+    /* Marcador principal de Camaçari (destaque) */
+    .mapa__container .marcador-cam { filter: drop-shadow(0 0 6px rgba(52, 217, 123, 0.8)); }
+    .mapa__container .marcador-cam__ponto {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--verde); border: 2px solid var(--bg);
+      box-shadow: 0 0 0 4px rgba(52, 217, 123, 0.25);
+    }
+    /* Popups com acabamento moderno */
+    .mapa__container .leaflet-popup-content-wrapper {
+      background: rgba(10, 15, 20, 0.92); color: var(--text);
+      border: 1px solid var(--line-2); border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+    .mapa__container .leaflet-popup-tip { background: rgba(10, 15, 20, 0.92); }
+    .mapa__container .leaflet-popup-content strong { color: var(--verde); }
+    .mapa__container .leaflet-popup-content a { color: var(--verde); }
 
     /* --- Classificação ------------------------------------------------ */
     .ranking { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -1015,6 +1096,9 @@
     }
     /* == FIM-CSS == */
   </style>
+  <!-- Leaflet (mapa global interativo) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -1259,12 +1343,9 @@
           <p class="secao__linha">Rotas curtas, peso conhecido e prazo claro. Aceite a que cabe no seu caminho — a ONG acompanha cada etapa.</p>
         </div>
         <div class="missoes__grade">
-          <div class="mapa vidro" data-reveal>
-            <img src="quadros/desktop/frame-0090.webp" alt="Mapa noturno com rotas verdes entre feiras, voluntários e ONGs" width="1280" height="720" loading="lazy" decoding="async">
-            <span class="mapa__pino" style="left:24%;top:32%" aria-hidden="true"></span>
-            <span class="mapa__pino mapa__pino--2" style="left:58%;top:22%" aria-hidden="true"></span>
-            <span class="mapa__pino mapa__pino--3" style="left:72%;top:58%" aria-hidden="true"></span>
-            <span class="mapa__pino" style="left:38%;top:68%" aria-hidden="true"></span>
+          <div class="mapa mapa--interativo vidro" data-reveal>
+            <div id="mapaLeaflet" class="mapa__container" role="application" aria-label="Mapa global interativo centrado em Camaçari"></div>
+            <button type="button" class="mapa__recentrar" id="mapaRecentrar" aria-label="Centralizar o mapa no SENAI de Camaçari">Centralizar no SENAI</button>
             <span class="mapa__legenda"><strong>5 missões</strong> abertas agora · Centro, Arembepe e Gleba A</span>
           </div>
 
@@ -2163,6 +2244,111 @@
       }
 
       iniciar();
+    })();
+
+    // ============================================================
+    // MAPA GLOBAL INTERATIVO — Leaflet + OpenStreetMap
+    // ============================================================
+    (function initMapaGlobal() {
+      // Centro operacional: SENAI Camaçari — Av. Eixo Urbano Central, Centro, Camaçari-BA
+      const SENAI_CAMACARI = [-12.7003476, -38.3206972];
+      const tentar = () => {
+        if (typeof window.L === 'undefined') { setTimeout(tentar, 120); return; }
+        const container = document.getElementById('mapaLeaflet');
+        if (!container || container._leaflet_id) return;
+        const mapa = L.map(container, {
+          center: SENAI_CAMACARI,
+          zoom: 16,
+          minZoom: 2,
+          maxZoom: 19,
+          zoomControl: true,
+          scrollWheelZoom: true
+        });
+        // Camada tradicional (OpenStreetMap)
+        const camadaMapa = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        });
+        // Camada de satélite (Esri World Imagery — uso público permitido)
+        const camadaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        });
+        camadaMapa.addTo(mapa);
+
+        // Marcador do centro operacional — SENAI Camaçari
+        const iconeSenai = L.divIcon({
+          className: 'marcador-senai',
+          html: '<span class="marcador-senai__ponto"></span>',
+          iconSize: [26, 26],
+          iconAnchor: [13, 13]
+        });
+        const marcador = L.marker(SENAI_CAMACARI, { icon: iconeSenai, zIndexOffset: 1000 }).addTo(mapa);
+        marcador.bindPopup(
+          '<strong>Centro Operacional — SENAI Camaçari</strong><br>' +
+          'Av. Eixo Urbano Central, Centro — Camaçari/BA.<br>' +
+          'Referência geográfica do Conecta-Rua.'
+        ).openPopup();
+
+        // Alternância de visualização: Mapa / Satélite
+        const seletor = document.createElement('div');
+        seletor.className = 'mapa__seletor';
+        seletor.innerHTML =
+          '<button type="button" class="mapa__seletor-btn ativo" data-modo="mapa">Mapa</button>' +
+          '<button type="button" class="mapa__seletor-btn" data-modo="satelite">Satélite</button>';
+        container.appendChild(seletor);
+        let modoAtual = 'mapa';
+        seletor.querySelectorAll('.mapa__seletor-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const modo = btn.getAttribute('data-modo');
+            if (modo === modoAtual) return;
+            modoAtual = modo;
+            if (modo === 'satelite') {
+              mapa.removeLayer(camadaMapa);
+              camadaSatelite.addTo(mapa);
+            } else {
+              mapa.removeLayer(camadaSatelite);
+              camadaMapa.addTo(mapa);
+            }
+            seletor.querySelectorAll('.mapa__seletor-btn').forEach((b) => {
+              b.classList.toggle('ativo', b === btn);
+            });
+          });
+        });
+
+        // Missões de exemplo (coordenadas reais de Camaçari e arredores)
+        const missoes = [
+          { coords: [-12.6975, -38.3242], nome: 'Feira de Camaçari', info: 'Doação de Alimentos — 48 kg' },
+          { coords: [-12.7050, -38.3150], nome: 'Cozinha Solidária', info: 'Entrega programada até 18h40' },
+          { coords: [-12.6850, -38.3350], nome: 'EcoPonto Arembepe', info: '3 missões abertas' },
+          { coords: [-12.7200, -38.3000], nome: 'Gleba A — Ponto de coleta', info: 'Voluntários ativos' }
+        ];
+        missoes.forEach((m) => {
+          const mk = L.marker(m.coords).addTo(mapa);
+          mk.bindPopup('<strong>' + m.nome + '</strong><br>' + m.info);
+        });
+
+        // Botão "Centralizar em Camaçari"
+        const btn = document.getElementById('mapaRecentrar');
+        if (btn) {
+          btn.textContent = 'Centralizar no SENAI';
+          btn.addEventListener('click', () => {
+            mapa.flyTo(SENAI_CAMACARI, 16, { duration: 1.2 });
+          });
+        }
+
+        // Corrige o dimensionamento quando o contêiner muda de tamanho
+        const obs = new ResizeObserver(() => { mapa.invalidateSize(); });
+        obs.observe(container);
+
+        // Invalida o tamanho inicial (caso o contêiner ainda estivesse oculto)
+        setTimeout(() => mapa.invalidateSize(), 200);
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', tentar);
+      } else {
+        tentar();
+      }
     })();
   </script>
 </body>
