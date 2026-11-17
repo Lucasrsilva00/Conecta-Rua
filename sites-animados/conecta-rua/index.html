@@ -238,7 +238,7 @@
     }
     #quadro { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
-    .camada { position: absolute; inset: 0; pointer-events: none; }
+    .camada { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
     .scrim-lateral  { background: var(--scrim-lateral); }
     .scrim-inferior { background: var(--scrim-inferior); }
     .vinheta        { background: var(--vinheta); }
@@ -249,32 +249,33 @@
       mix-blend-mode: screen;
     }
 
-    /* Correção do typo do vídeo: patch pequeno sobre a palavra errada.
-       Fundo translúcido + blur + máscara radial integram ao card. */
+    /* Correção do typo gravado no vídeo. O patch assume a cor real do cartão
+       naquele quadro (amostrada do canvas) e o texto é alinhado à esquerda e à
+       linha de base da palavra original, sem caixa, blur, sombra ou máscara. */
     .correcao-typo {
-      position: absolute; z-index: 4; pointer-events: none;
+      position: absolute; z-index: 0; pointer-events: none;
       left: var(--ct-x, 0px); top: var(--ct-y, 0px);
       width: var(--ct-w, 0px); height: var(--ct-h, 0px);
       box-sizing: border-box;
-      display: none; align-items: center; justify-content: center;
-      border-radius: 0.12em;
-      background: rgba(226, 227, 230, 0.55);
-      -webkit-backdrop-filter: blur(18px) brightness(1.18) saturate(0.9);
-      backdrop-filter: blur(18px) brightness(1.18) saturate(0.9);
-      color: #262626;
-      -webkit-mask-image: radial-gradient(125% 145% at 50% 50%, #000 66%, rgba(0, 0, 0, 0.85) 82%, transparent 100%);
-      mask-image: radial-gradient(125% 145% at 50% 50%, #000 66%, rgba(0, 0, 0, 0.85) 82%, transparent 100%);
-      box-shadow: 0 0 0.14em 0.05em rgba(226, 227, 230, 0.4);
-      overflow: hidden;
+      display: none;
+      background: var(--ct-bg, #e4e5e7);
+      background-size: 100% 100%;
+      color: var(--ct-cor, #33343a);
+      /* O fundo fica opaco enquanto o patch existe: desvanecer o patch inteiro
+         revelaria o typo gravado por baixo. Só a palavra recebe o fade. */
+      overflow: visible;
     }
-    .correcao-typo.ativo { display: flex; }
+    .correcao-typo.ativo { display: block; }
     /* Garante que não apareça após a intro */
     .intro--passou .correcao-typo { display: none !important; }
     .correcao-typo__palavra {
-      font-weight: 600; letter-spacing: -0.015em; line-height: 1;
-      font-size: calc(var(--ct-w, 100px) * 0.27);
-      transform: translateY(0.13em);
+      position: absolute; left: var(--ct-pad, 0px); top: var(--ct-ty, 0px);
+      font-weight: 600; letter-spacing: -0.012em; line-height: 1;
+      font-size: var(--ct-fs, 20px);
+      transform: scaleX(var(--ct-sx, 1));
+      transform-origin: left top;
       white-space: nowrap;
+      opacity: var(--ct-op, 1);
     }
 
     /* Véu local sobre o texto gravado no vídeo, só na abertura (P1). */
@@ -955,7 +956,6 @@
       .hero-titulo { font-size: clamp(2.6rem, 17vw, 4.2rem); }
       .parada--hero .rotulo { font-size: 0.62rem; letter-spacing: 0.12em; }
       .parada--hero .acoes { gap: 8px; }
-      .correcao-typo { display: none; }
       .dica { display: none; }
       .painel__titulo { white-space: nowrap; }
       .painel__selo { display: none; }
@@ -1682,18 +1682,61 @@
         posicionarCorrecao(Math.round(atual));
       }
 
-      // O bloco de texto do card do vídeo muda de lugar e de escala conforme a
-      // câmera aproxima. Estas âncoras (quadro 1280×720) guiam o overlay que
-      // corrige o typo; a interpolação acompanha o recorte "cover" do canvas.
+      // Âncoras medidas quadro a quadro (1280×720). A palavra errada cresce e
+      // desce junto com o cartão; cada chave é o retângulo real de "Desgãs".
       const CORRECAO_CHAVES = [
-        { i: 29, x: 578, y: 491, w: 56, h: 25 },
-        { i: 44, x: 545, y: 485, w: 81, h: 28 },
-        { i: 59, x: 521, y: 540, w: 119, h: 40 },
-        { i: 72, x: 508, y: 554, w: 124, h: 42 },
-        { i: 84, x: 455, y: 613, w: 170, h: 52 }
+        { i: 27, x: 585, y: 504, w: 36, h: 14 },
+        { i: 29, x: 583, y: 502, w: 39, h: 15 },
+        { i: 37, x: 567, y: 487, w: 50, h: 18 },
+        { i: 44, x: 550, y: 489, w: 69, h: 24 },
+        { i: 51, x: 535, y: 519, w: 94, h: 30 },
+        { i: 59, x: 525, y: 543, w: 109, h: 33 },
+        { i: 65, x: 520, y: 552, w: 114, h: 34 },
+        { i: 72, x: 511, y: 563, w: 121, h: 37 },
+        { i: 77, x: 500, y: 576, w: 131, h: 39 },
+        { i: 81, x: 484, y: 594, w: 144, h: 44 },
+        { i: 84, x: 463, y: 615, w: 161, h: 50 },
+        // Últimos quadros: o texto já está deitado no mapa. A âncora cobre a
+        // tinta inteira (til do "ã" ao descendente do "g") e `b` guarda a linha
+        // de base real medida no quadro, que não coincide com a caixa da tinta.
+        { i: 86, x: 448, y: 630, w: 172, h: 52, b: 672 },
+        { i: 87, x: 440, y: 639, w: 178, h: 52, b: 681 }
       ];
       const CORRECAO_FW = 1280;
       const CORRECAO_FH = 720;
+      const CORRECAO_VAO = 1; // a palavra ocupa exatamente o slot do typo
+      const CORRECAO_FONTE = 1.0; // altura da tinta (com descendente) por em
+      const CORRECAO_MARGEM = 2; // px (quadro 1280) em volta do typo
+      const CORRECAO_BASE = 0.05; // ajuste da linha de base real do vídeo
+
+      let proporcaoPalavra = 3.6; // largura de "Doação" por em
+      let ultimaCorFundo = '';
+      let indiceCorFundo = -99;
+
+      // Mede a largura real da palavra com a fonte efetivamente carregada.
+      // O elemento só pode ser removido depois de fonts.ready — antes disso a
+      // medição cai no fallback e a compressão horizontal nunca seria aplicada.
+      (() => {
+        const medidor = document.createElement('span');
+        medidor.textContent = 'Doação';
+        medidor.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;' +
+          'white-space:nowrap;font-weight:600;font-size:100px;line-height:1;' +
+          'letter-spacing:-0.012em;font-family:var(--body);';
+        document.body.appendChild(medidor);
+        const medir = () => {
+          const w = medidor.offsetWidth;
+          if (w < 20) return;
+          proporcaoPalavra = w / 100;
+          if (ultimoDesenho >= 0) posicionarCorrecao(ultimoDesenho);
+        };
+        medir();
+        if (document.fonts) {
+          if (document.fonts.load) document.fonts.load('600 100px Inter').then(medir).catch(() => {});
+          document.fonts.ready.then(() => { medir(); medidor.remove(); });
+        } else {
+          medidor.remove();
+        }
+      })();
 
       function retanguloCorrecao(indice) {
         const c = CORRECAO_CHAVES;
@@ -1705,12 +1748,57 @@
           if (indice >= c[k].i && indice <= c[k + 1].i) { a = c[k]; b = c[k + 1]; break; }
         }
         const t = (indice - a.i) / (b.i - a.i);
-        return {
+        const r = {
           x: a.x + (b.x - a.x) * t,
           y: a.y + (b.y - a.y) * t,
           w: a.w + (b.w - a.w) * t,
           h: a.h + (b.h - a.h) * t
         };
+        if (typeof a.b === 'number' && typeof b.b === 'number') {
+          r.b = a.b + (b.b - a.b) * t;
+        }
+        return r;
+      }
+
+      // Cor real do cartão atrás da palavra, lida do próprio quadro desenhado.
+      // Amostra uma linha acima e outra abaixo do patch e estica entre elas:
+      // assim o fundo acompanha o gradiente do cartão coluna a coluna.
+      const canvasFundo = document.createElement('canvas');
+      const ctxFundo = canvasFundo.getContext('2d');
+
+      function fundoDoCartao(px, py, pw, ph, s) {
+        const dpr = canvas.width / Math.max(1, canvas.clientWidth);
+        const X = Math.round(px * dpr);
+        const Y = Math.round(py * dpr);
+        const W = Math.max(2, Math.round(pw * dpr));
+        const H = Math.max(2, Math.round(ph * dpr));
+        if (X < 0 || Y < 1 || X + W > canvas.width || Y + H >= canvas.height) return null;
+        const off = Math.max(2, Math.round(2 * s * dpr));
+        const yTop = Math.max(0, Y - off);
+        const yBot = Math.min(canvas.height - 1, Y + H + off);
+        let a, b;
+        try {
+          a = ctx.getImageData(X, yTop, W, 1).data;
+          b = ctx.getImageData(X, yBot, W, 1).data;
+        } catch (e) { return null; }
+        canvasFundo.width = W;
+        canvasFundo.height = 2;
+        const out = ctxFundo.createImageData(W, 2);
+        for (let x = 0; x < W; x++) {
+          const i = x * 4;
+          let r1 = a[i], g1 = a[i + 1], b1 = a[i + 2];
+          let r2 = b[i], g2 = b[i + 1], b2 = b[i + 2];
+          const l1 = r1 * 0.299 + g1 * 0.587 + b1 * 0.114;
+          const l2 = r2 * 0.299 + g2 * 0.587 + b2 * 0.114;
+          // Texto ou borda escura em um dos lados: usa o lado limpo na coluna.
+          if (l1 < 70 && l2 > l1 + 30) { r1 = r2; g1 = g2; b1 = b2; }
+          else if (l2 < 70 && l1 > l2 + 30) { r2 = r1; g2 = g1; b2 = b1; }
+          out.data[i] = r1; out.data[i + 1] = g1; out.data[i + 2] = b1; out.data[i + 3] = 255;
+          const k = (W + x) * 4;
+          out.data[k] = r2; out.data[k + 1] = g2; out.data[k + 2] = b2; out.data[k + 3] = 255;
+        }
+        ctxFundo.putImageData(out, 0, 0);
+        return `url(${canvasFundo.toDataURL('image/png')})`;
       }
 
       function posicionarCorrecao(indice) {
@@ -1722,10 +1810,41 @@
         const ox = (cw - CORRECAO_FW * s) / 2;
         const oy = (ch - CORRECAO_FH * s) / 2;
         const r = retanguloCorrecao(indice);
-        correcaoTypo.style.setProperty('--ct-x', (ox + r.x * s).toFixed(1) + 'px');
-        correcaoTypo.style.setProperty('--ct-y', (oy + r.y * s).toFixed(1) + 'px');
-        correcaoTypo.style.setProperty('--ct-w', (r.w * s).toFixed(1) + 'px');
-        correcaoTypo.style.setProperty('--ct-h', (r.h * s).toFixed(1) + 'px');
+        // A margem cobre os pixels de antialiasing do typo gravado; o texto
+        // começa exatamente onde a palavra original começava.
+        const pad = Math.max(1, CORRECAO_MARGEM * s);
+        const px = ox + r.x * s - pad;
+        const py = oy + r.y * s - pad;
+        const pw = r.w * s + pad * 2;
+        const ph = r.h * s + pad * 2;
+        correcaoTypo.style.setProperty('--ct-x', px.toFixed(1) + 'px');
+        correcaoTypo.style.setProperty('--ct-y', py.toFixed(1) + 'px');
+        correcaoTypo.style.setProperty('--ct-w', pw.toFixed(1) + 'px');
+        correcaoTypo.style.setProperty('--ct-h', ph.toFixed(1) + 'px');
+        correcaoTypo.style.setProperty('--ct-pad', pad.toFixed(1) + 'px');
+        // Fonte casada com a altura real da palavra do vídeo.
+        const fonte = Math.max(6, r.h * s * CORRECAO_FONTE);
+        correcaoTypo.style.setProperty('--ct-fs', fonte.toFixed(1) + 'px');
+        // Linha de base: quando a âncora traz a medida real (`b`), usa direto;
+        // nos quadros antigos mantém a heurística já calibrada.
+        let ty;
+        if (typeof r.b === 'number') {
+          ty = (r.b - r.y) * s - 0.8633 * fonte + pad;
+        } else {
+          ty = (r.h * s + pad + r.h * s * CORRECAO_BASE) - 0.8633 * fonte;
+        }
+        correcaoTypo.style.setProperty('--ct-ty', ty.toFixed(1) + 'px');
+        // Comprime só o necessário para caber na largura da palavra original.
+        const disponivel = r.w * s * CORRECAO_VAO;
+        const escala = Math.min(1, disponivel / Math.max(1, proporcaoPalavra * fonte));
+        correcaoTypo.style.setProperty('--ct-sx', escala.toFixed(3));
+        // Reamostra o fundo a cada quadro: a câmera muda de cor rapidamente.
+        {
+          const cor = fundoDoCartao(px, py, pw, ph, s);
+          if (cor) { ultimaCorFundo = cor; correcaoTypo.style.setProperty('--ct-bg', cor); }
+          else if (ultimaCorFundo) correcaoTypo.style.setProperty('--ct-bg', ultimaCorFundo);
+          indiceCorFundo = indice;
+        }
       }
 
       function desenhar(indice) {
@@ -1869,12 +1988,19 @@
           ultimoDesenho = desenho;
         }
 
-        // O card do vídeo só existe entre os quadros ~29 e ~81.
-        // Esconde também quando passou da intro (evita legenda flutuante).
-        const correcao = desenho >= 29 && desenho <= 81 && progressoScroll() < 0.99;
+        // O card do vídeo existe entre os quadros ~27 e ~87 (o typo do último
+        // quadro já está esmaecido). O fundo do patch permanece opaco até o fim;
+        // só a palavra entra e sai em fade, sem nunca revelar o typo gravado.
+        const correcao = desenho >= 27 && desenho <= 87 && progressoScroll() < 0.99;
         if (correcao !== correcaoAtiva) {
           correcaoAtiva = correcao;
           if (correcaoTypo) correcaoTypo.classList.toggle('ativo', correcao);
+        }
+        if (correcaoTypo && correcao) {
+          let op = 1;
+          if (desenho < 30) op = (desenho - 27) / 3;
+          else if (desenho > 86) op = (87 - desenho);
+          correcaoTypo.style.setProperty('--ct-op', Math.max(0, Math.min(1, op)).toFixed(3));
         }
 
         atualizarParadas(efetivo);
