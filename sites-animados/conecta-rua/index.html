@@ -18,6 +18,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+  <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
@@ -1128,7 +1131,7 @@
 
   <header class="topo" id="topo">
     <a class="marca" href="#inicio" aria-label="Conecta-Rua — início">
-      <img class="marca__logo" src="../../img/Logo.png" alt="" aria-hidden="true" width="44" height="44"> Conecta-Rua
+      <img class="marca__logo" src="../../img/Logo.png" alt="" aria-hidden="true" width="44" height="44" loading="lazy" decoding="async"> Conecta-Rua
     </a>
     <nav class="topo__nav" aria-label="Navegação principal">
       <a href="#perfis">Perfis</a>
