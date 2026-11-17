@@ -1895,6 +1895,22 @@
         }
       }
 
+      // Garante que o overlay de correção do typo fique oculto fora da intro
+      if (correcaoTypo) {
+        const ioCorrecao = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) {
+              correcaoTypo.classList.remove('ativo');
+              correcaoAtiva = false;
+              correcaoTypo.style.display = 'none';
+            } else {
+              correcaoTypo.style.display = '';
+            }
+          });
+        }, { threshold: 0 });
+        ioCorrecao.observe(intro);
+      }
+
       // Spy de scroll para a navegação lateral
       const navItens = [...document.querySelectorAll('.nav-lateral__item')];
       const secoes = navItens.map((a) => document.querySelector(a.getAttribute('href')));
