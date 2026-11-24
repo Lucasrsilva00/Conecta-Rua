@@ -4,6 +4,15 @@ Landing de página única da Rede Conecta-Rua (Camaçari, BA), com intro
 dirigida por scroll e landing em DOM. Tudo em português, tema escuro,
 verde + laranja, contraste WCAG AA/AAA.
 
+## 🔗 Acesso ao Projeto e Documentação
+
+- 🌐 **Site oficial:** [conecta-rua.vercel.app](https://conecta-rua.vercel.app/) — plataforma Conecta-Rua (mapa, missões, perfis, painel).
+- 📊 **Apresentação:** *endereço da apresentação institucional ainda a ser confirmado — não inventado.*
+- 📄 **Documentação do site:** [Documento técnico/funcional](https://escolasesiba-my.sharepoint.com/:w:/g/personal/0000254881_escolasesiba_com_br/cQpwjDy94YwFSJEgAiORhDFQEgUC-RGTTbpJ4T7cPIAARkxubQ)
+- 🏢 **Documentação da empresa:** mesmo endereço acima (confirmar se é o mesmo documento ou link distinto).
+
+> Observação: os dois links de documentação informados possuem o mesmo endereço. Validar se são o mesmo documento ou se houve erro no envio.
+
 ## Como abrir
 
 ```bash
