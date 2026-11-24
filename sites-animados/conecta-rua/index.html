@@ -1131,7 +1131,7 @@
 
   <header class="topo" id="topo">
     <a class="marca" href="#inicio" aria-label="Conecta-Rua — início">
-      <img class="marca__logo" src="../../img/Logo.png" alt="" aria-hidden="true" width="44" height="44" loading="lazy" decoding="async"> Conecta-Rua
+      <img class="marca__logo" src="img/Logo.png" alt="" aria-hidden="true" width="44" height="44" loading="lazy" decoding="async"> Conecta-Rua
     </a>
     <nav class="topo__nav" aria-label="Navegação principal">
       <a href="#perfis">Perfis</a>
@@ -2350,10 +2350,21 @@
         // Invalida o tamanho inicial (caso o contêiner ainda estivesse oculto)
         setTimeout(() => mapa.invalidateSize(), 200);
       };
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', tentar);
+      // Inicializa o mapa apenas quando a seção entra em viewport (lazy init).
+      const secaoMissoes = document.getElementById('missoes');
+      if (secaoMissoes && 'IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) { tentar(); obs.disconnect(); }
+          });
+        }, { rootMargin: '200px' });
+        obs.observe(secaoMissoes);
       } else {
-        tentar();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', tentar);
+        } else {
+          tentar();
+        }
       }
     })();
   </script>
